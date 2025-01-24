@@ -13,7 +13,8 @@ import 'base/utils/window_resize_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!Platform.isAndroid && !Platform.isIOS) {
+
+  if (Platform.isWindows) {
     await windowManager.ensureInitialized();
 
     WindowOptions windowOptions = WindowOptions(
@@ -44,9 +45,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme.dark(),
       routes: {
-        // '/': AppRoutes.authPage,
-        '/': AppRoutes.homePage,
+        '/': AppRoutes.authPage,
+        // '/': AppRoutes.homePage,
         '/home': AppRoutes.homePage,
+        '/event-detail': AppRoutes.eventDetailPage,
       },
     );
   }

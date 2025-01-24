@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/base/app_media.dart';
 import 'package:nexus/base/utils/app_data.dart';
+import 'package:nexus/base/widgets/event_card.dart';
 import 'package:nexus/base/widgets/link_tile.dart';
 import 'package:nexus/base/widgets/section_header.dart';
 
@@ -11,7 +12,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    // colorArray = [];
 
     return Padding(
       padding: const EdgeInsets.all(32.0),
@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
           // SizedBox(height: 32),
           _dashAnalytics(),
           // SizedBox(height: 32),
-          _upcomingEventsSection(),
+          _upcomingEventsSection(context),
           // SizedBox(height: 32),
           _linksSection(colorScheme),
         ],
@@ -54,47 +54,42 @@ class HomeScreen extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.deepPurpleAccent,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
+            // child: TimeTableView(),
+            child: Container(),
           ),
-          Expanded(
-            child: Column(
-              spacing: 10,
-              children: [
-                Container(
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                Container(
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: Colors.pinkAccent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ],
-            ),
-          )
+          // Expanded(
+          //   child: Column(
+          //     spacing: 10,
+          //     children: [
+          //       Container(
+          //         height: 70,
+          //         decoration: BoxDecoration(
+          //           color: Colors.orangeAccent,
+          //           borderRadius: BorderRadius.circular(8),
+          //         ),
+          //       ),
+          //       Container(
+          //         height: 70,
+          //         decoration: BoxDecoration(
+          //           color: Colors.pinkAccent,
+          //           borderRadius: BorderRadius.circular(8),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // )
         ],
       );
 
-  _upcomingEventsSection() => Column(
+  _upcomingEventsSection(context) => Column(
         children: [
           SectionHeader(
               text: 'Upcoming events',
               onTap: () {
-                if (colorArray.isNotEmpty) {
-                  colorArray = [];
+                if (colorAccentArray.isNotEmpty) {
+                  colorAccentArray = [];
                 } else {
-                  colorArray = [
+                  colorAccentArray = [
                     Colors.tealAccent,
                     Colors.deepPurpleAccent,
                     Colors.pinkAccent,
@@ -105,19 +100,25 @@ class HomeScreen extends StatelessWidget {
               }),
           SizedBox(height: 16),
           Visibility(
-            visible: colorArray.isNotEmpty,
+            visible: colorAccentArray.isNotEmpty,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 spacing: 16,
                 children: List.generate(
-                  colorArray.length,
-                  (index) => Container(
-                    width: 150,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: colorArray[index],
-                      borderRadius: BorderRadius.circular(8),
+                  colorAccentArray.length,
+                  (index) => GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/event-detail');
+                    },
+                    child: EventCard(
+                      index: index,
+                      iconSize: 32.0,
+                      size: Size(150, 100),
+                      date: DateTime.now(),
+                      deepColor: colorArray[index],
+                      color: colorAccentArray[index],
+                      hugeIcon: HugeIcons.strokeRoundedScissor01,
                     ),
                   ),
                 ),
@@ -125,7 +126,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Visibility(
-            visible: colorArray.isEmpty,
+            visible: colorAccentArray.isEmpty,
             child: Container(
               height: 100,
               decoration: BoxDecoration(
@@ -144,10 +145,10 @@ class HomeScreen extends StatelessWidget {
             SectionHeader(
               text: 'Saved links',
               onTap: () {
-                if (colorArray.isNotEmpty) {
-                  colorArray = [];
+                if (colorAccentArray.isNotEmpty) {
+                  colorAccentArray = [];
                 } else {
-                  colorArray = [
+                  colorAccentArray = [
                     Colors.tealAccent,
                     Colors.deepPurpleAccent,
                     Colors.pinkAccent,
@@ -161,10 +162,10 @@ class HomeScreen extends StatelessWidget {
               child: ListView(
                 reverse: true,
                 children: List.generate(
-                  colorArray.length,
+                  colorAccentArray.length,
                   (index) => Column(
                     children: [
-                      LinkTile(accent: colorArray[index]),
+                      LinkTile(accent: colorAccentArray[index]),
                       SizedBox(height: 16),
                     ],
                   ),
