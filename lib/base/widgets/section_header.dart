@@ -3,10 +3,17 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/base/app_styles.dart';
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({super.key, required this.text, this.onTap});
+  const SectionHeader({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.viewAllButtonEnabled = true,
+  });
 
   final String text;
   final Function()? onTap;
+
+  final bool viewAllButtonEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +21,15 @@ class SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(text, style: TextStyles.titleMedium.copyWith(fontSize: 20)),
-        GestureDetector(
-          onTap: onTap,
-          child: HugeIcon(
-            icon: HugeIcons.strokeRoundedSquareArrowRight01,
-            color: Colors.white70,
-            size: 24.0,
+        Visibility(
+          visible: viewAllButtonEnabled,
+          child: GestureDetector(
+            onTap: onTap,
+            child: HugeIcon(
+              icon: HugeIcons.strokeRoundedSquareArrowRight01,
+              color: Colors.white70,
+              size: 24.0,
+            ),
           ),
         )
       ],

@@ -32,8 +32,12 @@ class TimeTableSlot {
       teacher: json['teacher'],
       location: json['location'],
       activity: json['activity'],
-      slots: json['slots'],
       type: json['type'],
+      slots: json['slots'] != null
+          ? (json['slots'] as List)
+              .map((slot) => SubSlot.fromJson(slot as Map<String, dynamic>))
+              .toList()
+          : null,
     );
   }
 
@@ -80,9 +84,9 @@ class TimeTableManager {
   }
 
   List<TimeTableSlot> getCurrentDay() {
-    // final dayOfTheWeek = DateFormat("EEEE").format(DateTime.now());
-    // return schedule[dayOfTheWeek]!;
-    return schedule["Wednesday"]!;
+    final dayOfTheWeek = DateFormat("EEEE").format(DateTime.now());
+    return schedule[dayOfTheWeek]!;
+    // return schedule["Monday"]!;
   }
 
   int getCurrentTimeSlotIndex() {
@@ -114,6 +118,7 @@ class SubSlot {
   final String? teacher;
   final String? location;
   final String? activity;
+  final String? batch;
   final String? group;
 
   SubSlot({
@@ -121,8 +126,20 @@ class SubSlot {
     this.teacher,
     this.location,
     this.activity,
+    this.batch,
     this.group,
   });
+
+  factory SubSlot.fromJson(Map<String, dynamic> json) {
+    return SubSlot(
+      subject: json['subject'],
+      teacher: json['teacher'],
+      location: json['location'],
+      activity: json['activity'],
+      batch: json['batch'],
+      group: json['group'],
+    );
+  }
 }
 
 TimeTableManager manager = TimeTableManager.fromJson(timeTable);

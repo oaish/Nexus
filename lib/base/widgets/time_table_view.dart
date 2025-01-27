@@ -23,9 +23,9 @@ class _TimeTableViewState extends State<TimeTableView> {
     return TimeTableContainer(
       onSwipe: (details) {
         if (details.velocity.pixelsPerSecond.dx > 0) {
-          incrementIndex();
-        } else if (details.velocity.pixelsPerSecond.dx < 0) {
           decrementIndex();
+        } else if (details.velocity.pixelsPerSecond.dx < 0) {
+          incrementIndex();
         }
       },
       mainContent: Column(
@@ -42,7 +42,7 @@ class _TimeTableViewState extends State<TimeTableView> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  slot.subject ?? slot.activity ?? slot.slots?[0].subject ?? '',
+                  slot.subject ?? slot.activity ?? slot.slots?[1].subject ?? '',
                   style: GoogleFonts.novaFlat(
                     color: Colors.deepPurple[100],
                     fontSize: TextStyles.displayMedium.fontSize,
@@ -53,17 +53,24 @@ class _TimeTableViewState extends State<TimeTableView> {
               ),
               Visibility(
                 visible: slot.type == "TH" || slot.type == "PR",
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 2.0, vertical: 1),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    slot.type ?? '',
-                    style: TextStyles.labelSmall
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 2.0, vertical: 1),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        slot.type ?? '',
+                        style: TextStyles.labelSmall.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                  ],
                 ),
               )
             ],
@@ -166,7 +173,7 @@ class TimeTableContainer extends StatelessWidget {
     return GestureDetector(
       onHorizontalDragEnd: onSwipe,
       child: Container(
-        height: 160,
+        height: 140,
         padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.deepPurple,

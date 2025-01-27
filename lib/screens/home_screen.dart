@@ -5,6 +5,7 @@ import 'package:nexus/base/utils/app_data.dart';
 import 'package:nexus/base/widgets/event_card.dart';
 import 'package:nexus/base/widgets/link_tile.dart';
 import 'package:nexus/base/widgets/section_header.dart';
+import 'package:nexus/base/widgets/time_table_view.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           _homeScreenHeader(colorScheme),
           // SizedBox(height: 32),
-          _dashAnalytics(),
+          _timeTableSection(),
           // SizedBox(height: 32),
           _upcomingEventsSection(context),
           // SizedBox(height: 32),
@@ -49,55 +50,19 @@ class HomeScreen extends StatelessWidget {
         ],
       );
 
-  _dashAnalytics() => Row(
+  _timeTableSection() => Row(
         spacing: 10,
         children: [
           Expanded(
             flex: 3,
-            // child: TimeTableView(),
-            child: Container(),
+            child: TimeTableView(),
           ),
-          // Expanded(
-          //   child: Column(
-          //     spacing: 10,
-          //     children: [
-          //       Container(
-          //         height: 70,
-          //         decoration: BoxDecoration(
-          //           color: Colors.orangeAccent,
-          //           borderRadius: BorderRadius.circular(8),
-          //         ),
-          //       ),
-          //       Container(
-          //         height: 70,
-          //         decoration: BoxDecoration(
-          //           color: Colors.pinkAccent,
-          //           borderRadius: BorderRadius.circular(8),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // )
         ],
       );
 
   _upcomingEventsSection(context) => Column(
         children: [
-          SectionHeader(
-              text: 'Upcoming events',
-              onTap: () {
-                if (colorAccentArray.isNotEmpty) {
-                  colorAccentArray = [];
-                } else {
-                  colorAccentArray = [
-                    Colors.tealAccent,
-                    Colors.deepPurpleAccent,
-                    Colors.pinkAccent,
-                    Colors.redAccent,
-                    Colors.orangeAccent,
-                  ];
-                }
-              }),
+          SectionHeader(text: 'Upcoming events'),
           SizedBox(height: 16),
           Visibility(
             visible: colorAccentArray.isNotEmpty,

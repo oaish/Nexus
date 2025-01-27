@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/base/app_routes.dart';
 import 'package:nexus/screens/home_screen.dart';
+import 'package:nexus/screens/silencer_screen.dart';
 import 'package:nexus/theme/app_theme.dart';
 import 'package:nexus/theme/color_scheme.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'base/utils/window_resize_utils.dart';
+import 'screens/action_hub_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +47,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: theme.dark(),
       routes: {
-        '/': AppRoutes.authPage,
-        // '/': AppRoutes.homePage,
+        // '/': AppRoutes.authPage,
+        '/': AppRoutes.homePage,
+        // '/': AppRoutes.silencerPage,
         '/home': AppRoutes.homePage,
+        '/silencer': AppRoutes.silencerPage,
         '/event-detail': AppRoutes.eventDetailPage,
       },
     );
@@ -66,8 +70,8 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget?> screens = [
     HomeScreen(),
-    Container(),
-    Container(),
+    ActionHubScreen(),
+    SilencerScreen(),
     Container(),
   ];
 
