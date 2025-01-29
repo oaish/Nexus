@@ -110,7 +110,7 @@ var timeTable = {
     {
       "sTime": "12:15",
       "eTime": "13:15",
-      "subject": "Python Theory",
+      "subject": "Python",
       "teacher": "Shainila",
       "location": "CR-4",
       "type": "TH"
@@ -120,6 +120,31 @@ var timeTable = {
       "eTime": "14:00",
       "activity": "Lunch Break",
       "type": null
+    },
+    {
+      "sTime": "14:00",
+      "eTime": "16:00",
+      "slots": [
+        {
+          "subject": "DBMS LAB",
+          "batch": "A",
+          "teacher": "Sana A.",
+          "location": "CC-1",
+        },
+        {
+          "subject": "OS Lab",
+          "batch": "B",
+          "teacher": "Dipti",
+          "location": "CL-7",
+        },
+        {
+          "subject": "Python LAB",
+          "batch": "C",
+          "teacher": "Shainila",
+          "location": "CC-2",
+        },
+      ],
+      "type": "PR"
     },
   ],
   "Wednesday": [
@@ -384,7 +409,7 @@ var timeTable2 = {
     {
       "sTime": "10:00",
       "eTime": "11:00",
-      "subject": "Python Theory",
+      "subject": "Python",
       "teacher": "Shainila",
       "location": "CR-4",
       "type": "TH"
@@ -495,7 +520,7 @@ var timeTable2 = {
     {
       "sTime": "12:15",
       "eTime": "13:15",
-      "subject": "Python Theory",
+      "subject": "Python",
       "teacher": "Shainila",
       "location": "CR-4",
       "type": "TH"

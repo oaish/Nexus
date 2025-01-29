@@ -19,6 +19,7 @@ class _TimeTableViewState extends State<TimeTableView> {
   Widget build(BuildContext context) {
     final TimeTableSlot slot = day[index];
     final colorScheme = Theme.of(context).colorScheme;
+    final type = (slot.type == "PR") ? slot.slots![0].batch! : slot.type ?? '';
 
     return TimeTableContainer(
       onSwipe: (details) {
@@ -56,16 +57,19 @@ class _TimeTableViewState extends State<TimeTableView> {
                 child: Column(
                   children: [
                     Container(
+                      width: 25,
                       padding:
                           EdgeInsets.symmetric(horizontal: 2.0, vertical: 1),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.white, width: 2),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
-                        slot.type ?? '',
-                        style: TextStyles.labelSmall.copyWith(
-                          fontWeight: FontWeight.bold,
+                      child: Center(
+                        child: Text(
+                          type,
+                          style: TextStyles.labelSmall.copyWith(
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
                       ),
                     ),

@@ -3,15 +3,7 @@ import 'dart:io';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:nexus/base/app_routes.dart';
-import 'package:nexus/screens/home_screen.dart';
-import 'package:nexus/screens/silencer_screen.dart';
-import 'package:nexus/theme/app_theme.dart';
-import 'package:nexus/theme/color_scheme.dart';
 import 'package:window_manager/window_manager.dart';
-
-import 'base/utils/window_resize_utils.dart';
-import 'screens/action_hub_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
