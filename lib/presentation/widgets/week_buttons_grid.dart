@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nexus/core/constants/app_data.dart';
 import 'package:nexus/core/constants/app_styles.dart';
-import 'package:nexus/presentation/bloc/week_bloc/week_bloc.dart';
+import 'package:nexus/presentation/cubits/week_cubit.dart';
 
 class WeekButtonsGrid extends StatelessWidget {
-  const WeekButtonsGrid({super.key, required this.accentColor});
+  const WeekButtonsGrid({super.key, required this.weekLength});
 
-  final Color accentColor;
+  final int weekLength;
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WeekBloc, WeekState>(
+    return BlocBuilder<WeekCubit, WeekState>(
       builder: (context, state) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           decoration: BoxDecoration(
-            color: const Color(0xFF222222),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 3,
-                spreadRadius: 3,
-              )
-            ],
             borderRadius: BorderRadius.circular(8.0),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              WeekButton('Mon', accentColor),
-              WeekButton('Tue', accentColor),
-              WeekButton('Wed', accentColor),
-              WeekButton('Thu', accentColor),
-              WeekButton('Fri', accentColor),
-              WeekButton('Sat', accentColor),
-              WeekButton('Sun', accentColor),
-            ],
+            children: List.generate(weekLength, (i) {
+              return WeekButton(weekDays[i]);
+            }),
           ),
         );
       },
@@ -44,35 +31,31 @@ class WeekButtonsGrid extends StatelessWidget {
 }
 
 class WeekButton extends StatelessWidget {
-  final String data;
-  final Color accentColor;
-  const WeekButton(this.data, this.accentColor, {super.key});
+  final String day;
+  const WeekButton(this.day, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    final selectedDay =
-        context.select((WeekBloc bloc) => bloc.state.selectedDay);
-    final bool isActive = selectedDay == data;
+    final selectedDay = context.select((WeekCubit cubit) => cubit.state.selectedDay);
+    final bool isActive = selectedDay == day;
 
     return GestureDetector(
       onTap: () {
-        context.read<WeekBloc>().add(SelectDayEvent(data));
+        context.read<WeekCubit>().selectDay(day);
       },
       child: Container(
-        width: 40,
+        width: 45,
         height: 40,
         decoration: BoxDecoration(
-          color: isActive ? accentColor : Colors.grey[700]!,
-          borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(
-              color: isActive ? Colors.white : Colors.transparent, width: 2),
+          color: isActive ? Theme.of(context).colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(10.0),
         ),
         child: Center(
           child: Text(
-            data,
+            day.substring(0, 3),
             style: TextStyle(
               fontFamily: 'NovaFlat',
-              color: isActive ? Colors.white : Colors.grey[400],
+              color: isActive ? Theme.of(context).colorScheme.onPrimary : Colors.grey[400],
               fontSize: TextStyles.labelMedium.fontSize,
               fontWeight: FontWeight.w900,
               letterSpacing: 1,

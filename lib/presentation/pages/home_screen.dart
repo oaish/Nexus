@@ -6,7 +6,7 @@ import 'package:nexus/core/constants/app_media.dart';
 import 'package:nexus/core/widgets/event_card.dart';
 import 'package:nexus/core/widgets/link_tile.dart';
 import 'package:nexus/core/widgets/section_header.dart';
-import 'package:nexus/presentation/bloc/week_bloc/week_bloc.dart';
+import 'package:nexus/presentation/cubits/week_cubit.dart';
 import 'package:nexus/presentation/widgets/time_table_view.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -52,11 +52,11 @@ class HomeScreen extends StatelessWidget {
         ],
       );
 
-  _timeTableSection(context) => BlocBuilder<WeekBloc, WeekState>(
+  _timeTableSection(context) => BlocBuilder<WeekCubit, WeekState>(
         builder: (context, state) {
           return GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/time-table-manager');
+              Navigator.pushNamed(context, '/time-table-viewer');
             },
             child: const TimeTableView(),
           );

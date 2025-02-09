@@ -1,58 +1,90 @@
-import 'dart:convert';
-
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:nexus/core/constants/app_data.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/core/constants/app_styles.dart';
-import 'package:nexus/core/utils/timetable_extensions.dart';
 import 'package:nexus/core/widgets/nexus_back_button.dart';
-import 'package:nexus/presentation/bloc/timetable_view_bloc/time_table_bloc.dart';
-import 'package:nexus/presentation/bloc/week_bloc/week_bloc.dart';
-import 'package:nexus/presentation/widgets/time_slot_tile.dart';
-import 'package:nexus/presentation/widgets/week_buttons_grid.dart';
-
-import '../../data/models/timetable_slot_model.dart';
+import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
+import 'package:nexus/presentation/widgets/manager/manager_card.dart';
 
 class TimeTableManagerScreen extends StatelessWidget {
   TimeTableManagerScreen({super.key});
 
-  static const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-  late final PageController _pageController = PageController(initialPage: 0);
-  bool isProgrammaticChange = false;
+  final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = AppStyles.getRandomAccentColor();
-
-    return BlocListener<WeekBloc, WeekState>(
-      listener: (context, state) {
-        if (state is WeekDaySelected) {
-          isProgrammaticChange = true;
-          _pageController
-              .animateToPage(
-            weekDays.indexOf(state.selectedDay),
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          )
-              .then((_) {
-            isProgrammaticChange = false;
-          });
-        }
-      },
-      child: SafeArea(
-        child: Scaffold(
-          body: Column(
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: NexusBackButton(),
+              const NexusBackButton(),
+              Center(
+                child: Column(
+                  spacing: 16,
+                  children: [
+                    Row(
+                      spacing: 16,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ManagerCard(
+                          icon: HugeIcons.strokeRoundedPropertyAdd,
+                          cardText: 'Create',
+                          accentColor: Colors.pink,
+                          onTap: () => _showBottomModal(
+                            context,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                spacing: 10,
+                                children: [
+                                  TextField(
+                                    controller: _textController,
+                                    decoration: InputDecoration(
+                                      label: const Text('Timetable Name'),
+                                      hintText: 'e.g. SE Comps B',
+                                      hintStyle: const TextStyle(color: Colors.white54, fontStyle: FontStyle.italic),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: const BorderSide(color: Colors.white54, width: 2),
+                                      ),
+                                    ),
+                                    onSubmitted: (_) => _handleCreateButton(context),
+                                  ),
+                                  _wideButton('Create', () => _handleCreateButton(context)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const ManagerCard(
+                          icon: HugeIcons.strokeRoundedPropertySearch,
+                          cardText: 'Select',
+                          accentColor: Colors.amber,
+                        ),
+                      ],
+                    ),
+                    const Row(
+                      spacing: 16,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ManagerCard(
+                          icon: HugeIcons.strokeRoundedCloudUpload,
+                          cardText: 'Import',
+                          accentColor: Colors.deepPurple,
+                        ),
+                        ManagerCard(
+                          icon: HugeIcons.strokeRoundedCloudDownload,
+                          cardText: 'Export',
+                          accentColor: Colors.blue,
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: WeekButtonsGrid(accentColor: accentColor),
-              ),
-              _slotTable(context),
             ],
           ),
         ),
@@ -60,60 +92,111 @@ class TimeTableManagerScreen extends StatelessWidget {
     );
   }
 
-  Widget _slotTable(context) {
-    final schedule =
-        <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
-
-    final weekDays = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
-
-    int previousPageIndex = 0;
-
-    return Expanded(
-      child: BlocBuilder<TimeTableViewBloc, TimeTableViewState>(
-        builder: (context, state) {
-          final currentState = state as TimeTableViewLoaded;
-          return PageView(
-            controller: _pageController,
-            physics: const BouncingScrollPhysics(
-                decelerationRate: ScrollDecelerationRate.fast),
-            onPageChanged: (int pageIndex) {
-              if (!isProgrammaticChange) {
-                if (pageIndex > previousPageIndex) {
-                  context.read<WeekBloc>().add(NextDayEvent());
-                } else if (pageIndex < previousPageIndex) {
-                  context.read<WeekBloc>().add(PreviousDayEvent());
-                }
-              }
-              previousPageIndex = pageIndex;
-            },
-            children: List.generate(schedule.length, (weekIndex) {
-              return Padding(
-                padding: const EdgeInsets.all(0),
-                // padding: const EdgeInsets.only(bottom: 16.0),
-                child: ListView.builder(
-                  itemCount: schedule[weekDays[weekIndex]]?.length,
-                  itemBuilder: (BuildContext context, int dayIndex) {
-                    return TimeSlotTile(
-                      slot: schedule[weekDays[weekIndex]]![dayIndex],
-                      index: dayIndex,
-                      batchIndex: state.batchIndex,
-                      groupIndex: state.groupIndex,
-                    );
-                  },
-                ),
-              );
-            }),
-          );
-        },
+  Widget _wideButton(String text, Function()? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xff308999),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyles.labelLarge.copyWith(
+            fontFamily: 'NovaFlat',
+          ),
+        ),
       ),
     );
+  }
+
+  SnackBar getSnackBar(title, message, contentType, {duration = 3}) {
+    return SnackBar(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      dismissDirection: DismissDirection.horizontal,
+      duration: Duration(seconds: duration),
+      content: AwesomeSnackbarContent(
+        title: title,
+        message: message,
+        contentType: contentType,
+      ),
+    );
+  }
+
+  _showBottomModal(context, {required Widget child}) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xff1f1f1f),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              width: MediaQuery.of(context).size.width * 1,
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white10, width: 1),
+                      color: const Color(0xff111111),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: child,
+                  ),
+                  const SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(4.0),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const HugeIcon(
+                        icon: HugeIcons.strokeRoundedCancel01,
+                        color: Colors.black,
+                        size: 24.0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  _handleCreateButton(BuildContext context) {
+    final String name = _textController.text.toString();
+    if (name.isEmpty) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(getSnackBar('Nah Bruh', 'Please enter a name for your timetable', ContentType.failure));
+    }
+
+    final TimeTableEditorCubit editorCubit = context.read<TimeTableEditorCubit>();
+    editorCubit.createTimeTable(
+      id: DateTime.now().millisecondsSinceEpoch,
+      name: name,
+      userId: '${DateTime.now().millisecondsSinceEpoch}',
+    );
+
+    Navigator.pushNamed(context, '/time-table-editor');
   }
 }

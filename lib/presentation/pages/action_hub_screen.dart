@@ -17,7 +17,7 @@ class ActionHubScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/event-detail');
+              Navigator.pushNamed(context, '/time-table-manager');
             },
             child: EventCard(
               index: index,

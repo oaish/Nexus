@@ -1,8 +1,8 @@
-import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:nexus/domain/entities/timetable.dart';
 
 abstract class TimeTableRepository {
-  Future<Map<String, List<TimeTableSlot>>> getTimeTable();
-  List<TimeTableSlot> getCurrentDay();
-  List<TimeTableSlot> getFromWeekDay(String weekDay);
-  int getCurrentTimeSlotIndex();
+  Future<List<TimeTable>> getAllTimeTables();
+  Future<void> saveTimeTable(TimeTable timetable);
+  Future<void> updateTimeTable(TimeTable timetable);
+  Future<void> deleteTimeTable(int id);
 }
