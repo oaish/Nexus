@@ -1,17 +1,17 @@
 import 'package:intl/intl.dart';
 import 'package:nexus/data/models/timetable_slot_model.dart';
 
-abstract class TimeTableDataSource {
+abstract class TimeTableViewDataSource {
   Future<Map<String, List<TimeTableSlotModel>>> fetchTimeTable();
   List<TimeTableSlotModel> getCurrentDay();
   List<TimeTableSlotModel> getFromWeekDay(String weekDay);
   int getCurrentTimeSlotIndex();
 }
 
-class TimeTableLocalDataSource implements TimeTableDataSource {
+class TimeTableViewLocalDataSource implements TimeTableViewDataSource {
   final Map<String, List<TimeTableSlotModel>> schedule;
 
-  TimeTableLocalDataSource({required this.schedule});
+  TimeTableViewLocalDataSource({required this.schedule});
 
   @override
   Future<Map<String, List<TimeTableSlotModel>>> fetchTimeTable() async {
@@ -33,10 +33,8 @@ class TimeTableLocalDataSource implements TimeTableDataSource {
       DateTime startTime = DateFormat("HH:mm").parse(timeSlots[i].sTime);
       DateTime endTime = DateFormat("HH:mm").parse(timeSlots[i].eTime);
 
-      startTime = DateTime(
-          now.year, now.month, now.day, startTime.hour, startTime.minute);
-      endTime =
-          DateTime(now.year, now.month, now.day, endTime.hour, endTime.minute);
+      startTime = DateTime(now.year, now.month, now.day, startTime.hour, startTime.minute);
+      endTime = DateTime(now.year, now.month, now.day, endTime.hour, endTime.minute);
 
       if (now.isAfter(startTime) && now.isBefore(endTime)) {
         return i;

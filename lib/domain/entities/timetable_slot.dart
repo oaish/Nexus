@@ -1,4 +1,4 @@
-import 'package:nexus/data/models/sub_slot_model.dart';
+import 'package:nexus/domain/entities/sub_slot.dart';
 
 class TimeTableSlot {
   final String sTime;
@@ -8,7 +8,7 @@ class TimeTableSlot {
   final String? location;
   final String? activity;
   final String? type;
-  final List<SubSlotModel>? subSlots;
+  final List<SubSlot>? subSlots;
 
   TimeTableSlot({
     required this.sTime,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
-import 'package:nexus/presentation/bloc/timetable_view_bloc/time_table_bloc.dart';
+import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 
 class TimeSlotTile extends StatelessWidget {
   const TimeSlotTile({
@@ -73,12 +73,8 @@ class TimeSlotTile extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: Border(
-            left: BorderSide(color: accentColor, width: 5),
-            right: BorderSide(color: accentColor, width: 5)),
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)
-        ],
+        border: Border(left: BorderSide(color: accentColor, width: 5), right: BorderSide(color: accentColor, width: 5)),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
         // color: Colors.grey[700]!,
         color: const Color(0xff222222),
         // color: const Color(0xff181818),
@@ -128,7 +124,7 @@ class TimeSlotTile extends StatelessWidget {
   }
 
   _subSlotColumn(context, {isPractical = true}) {
-    return BlocBuilder<TimeTableViewBloc, TimeTableViewState>(
+    return BlocBuilder<TimeTableViewCubit, TimeTableViewState>(
       builder: (context, state) {
         final subSlot = slot.subSlots![isPractical ? batchIndex : groupIndex];
         return Column(
@@ -141,9 +137,7 @@ class TimeSlotTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: _slotLabel(
-                    isPractical
-                        ? HugeIcons.strokeRoundedTestTube01
-                        : HugeIcons.strokeRoundedActivity01,
+                    isPractical ? HugeIcons.strokeRoundedTestTube01 : HugeIcons.strokeRoundedActivity01,
                     (isPractical ? subSlot.subject : subSlot.activity) ?? '',
                     // isTitle: true,
                   ),
@@ -167,13 +161,12 @@ class TimeSlotTile extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     if (isPractical) {
-                      context.read<TimeTableViewBloc>().add(CircleBatch());
+                      context.read<TimeTableViewCubit>().circleBatch();
                     } else {
-                      context.read<TimeTableViewBloc>().add(CircleGroup());
+                      context.read<TimeTableViewCubit>().circleGroup();
                     }
                   },
-                  child: _slotLabel(HugeIcons.strokeRoundedUserMultiple,
-                      isPractical ? subSlot.batch : subSlot.group),
+                  child: _slotLabel(HugeIcons.strokeRoundedUserMultiple, isPractical ? subSlot.batch : subSlot.group),
                 ),
               ],
             )
@@ -232,7 +225,7 @@ class TimeSlotTile extends StatelessWidget {
             height: 24.0,
             child: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Orbitron',
                 color: Colors.white60,
                 fontWeight: FontWeight.w600,
@@ -240,6 +233,63 @@ class TimeSlotTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class NoSlotTile extends StatelessWidget {
+  const NoSlotTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+      decoration: BoxDecoration(
+        border:
+            const Border(left: BorderSide(color: Colors.red, width: 5), right: BorderSide(color: Colors.red, width: 5)),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
+        color: const Color(0xff222222),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: const Color(0xff111418),
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: const [BoxShadow(color: Color(0xff111418), blurRadius: 2)],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Slot Icon
+            const SizedBox(
+              width: 24.0,
+              height: 24.0,
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: Colors.red,
+                size: 16.0,
+              ),
+            ),
+
+            // Slot Text
+            Container(
+              padding: const EdgeInsets.all(4.0),
+              child: const Text(
+                'No slot available for this day',
+                style: TextStyle(
+                  fontFamily: 'Orbitron',
+                  color: Colors.white60,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

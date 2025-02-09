@@ -1,18 +1,55 @@
-import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:hive/hive.dart';
 
+import '../../domain/entities/timetable_slot.dart';
 import 'sub_slot_model.dart';
 
+part 'timetable_slot_model.g.dart';
+
+@HiveType(typeId: 1)
 class TimeTableSlotModel extends TimeTableSlot {
+  @HiveField(0)
+  final String sTime;
+
+  @HiveField(1)
+  final String eTime;
+
+  @HiveField(2)
+  final String? subject;
+
+  @HiveField(3)
+  final String? teacher;
+
+  @HiveField(4)
+  final String? location;
+
+  @HiveField(5)
+  final String? activity;
+
+  @HiveField(6)
+  final String? type;
+
+  @HiveField(7)
+  final List<SubSlotModel>? subSlots;
+
   TimeTableSlotModel({
-    required super.sTime,
-    required super.eTime,
-    super.subject,
-    super.teacher,
-    super.location,
-    super.activity,
-    super.type,
-    super.subSlots,
-  });
+    required this.sTime,
+    required this.eTime,
+    this.subject,
+    this.teacher,
+    this.location,
+    this.activity,
+    this.type,
+    this.subSlots,
+  }) : super(
+          sTime: sTime,
+          eTime: eTime,
+          subject: subject,
+          teacher: teacher,
+          location: location,
+          activity: activity,
+          type: type,
+          subSlots: subSlots,
+        );
 
   factory TimeTableSlotModel.fromJson(Map<String, dynamic> json) {
     return TimeTableSlotModel(
@@ -24,9 +61,7 @@ class TimeTableSlotModel extends TimeTableSlot {
       activity: json['activity'],
       type: json['type'],
       subSlots: json['subSlots'] != null
-          ? (json['subSlots'] as List)
-              .map((slot) => SubSlotModel.fromJson(slot))
-              .toList()
+          ? (json['subSlots'] as List).map((slot) => SubSlotModel.fromJson(slot)).toList()
           : null,
     );
   }

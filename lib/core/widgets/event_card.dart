@@ -25,20 +25,7 @@ class EventCard extends StatelessWidget {
   _extractDate() {
     var day = date.day.toString().padLeft(2, '0');
 
-    List<String> monthNames = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC'
-    ];
+    List<String> monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     var month = monthNames[date.month - 1];
 
     return [day, month];
@@ -59,7 +46,7 @@ class EventCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            // _contentSection(day, month),
+            _contentSection(context, day, month),
             _clipPathSection(),
           ],
         ),
@@ -67,7 +54,7 @@ class EventCard extends StatelessWidget {
     );
   }
 
-  _contentSection(day, month) => Padding(
+  _contentSection(context, day, month) => Padding(
         padding: const EdgeInsets.all(12.0),
         child: SizedBox(
           height: double.infinity,
@@ -78,15 +65,20 @@ class EventCard extends StatelessWidget {
               Text(
                 day,
                 style: TextStyles.displayLarge.copyWith(
+                  fontFamily: 'NovaFlat',
+                  letterSpacing: -2,
                   fontSize: 53,
                   fontWeight: FontWeight.w900,
-                  // height: 0.9,
                 ),
               ),
               Text(
                 month,
-                style: TextStyles.titleMedium
-                    .copyWith(fontWeight: FontWeight.w900),
+                style: TextStyles.titleMedium.copyWith(
+                  fontFamily: 'NovaFlat',
+                  color: const Color(0xffe1e2e8),
+                  letterSpacing: 0,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ],
           ),

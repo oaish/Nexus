@@ -8,9 +8,7 @@ extension TimeTableExtensions on Map<String, List<TimeTableSlotModel>> {
     return decodedJson.map(
       (day, entries) => MapEntry(
         day,
-        (entries as List)
-            .map((entry) => TimeTableSlotModel.fromJson(entry))
-            .toList(),
+        (entries as List).map((entry) => TimeTableSlotModel.fromJson(entry)).toList(),
       ),
     );
   }

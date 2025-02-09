@@ -2,19 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class NexusBackButton extends StatelessWidget {
-  const NexusBackButton({super.key, this.isOnlyBackButtonContainer = true});
-  final bool isOnlyBackButtonContainer;
+  const NexusBackButton({super.key, this.onTap, this.extendedChild, this.isExtended = false});
+
+  final bool isExtended;
+  final Function()? onTap;
+  final Widget? extendedChild;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 25.0),
-        child: Row(
-          children: [
-            Container(
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 25.0),
+      child: Row(
+        spacing: 10,
+        children: [
+          GestureDetector(
+            onTap: onTap ?? () => Navigator.pop(context),
+            child: Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 color: colorScheme.primary,
@@ -26,8 +30,14 @@ class NexusBackButton extends StatelessWidget {
                 size: 24.0,
               ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Visibility(
+              visible: isExtended,
+              child: extendedChild ?? const SizedBox(),
+            ),
+          )
+        ],
       ),
     );
   }
