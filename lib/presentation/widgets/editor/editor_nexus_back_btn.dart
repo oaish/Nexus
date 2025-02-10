@@ -121,8 +121,8 @@ class EditorNexusBackBtn extends StatelessWidget {
                       spacing: 5,
                       children: [
                         settingsTile(
-                          'Create Timetable',
-                          icon: HugeIcons.strokeRoundedPropertyAdd,
+                          'Add TimeSlot',
+                          icon: HugeIcons.strokeRoundedAddSquare,
                         ),
                         settingsTile(
                           'Edit Timetable',

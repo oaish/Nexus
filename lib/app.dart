@@ -13,6 +13,7 @@ import 'package:nexus/data/datasources/timetable_view_data_source.dart';
 import 'package:nexus/data/models/timetable_slot_model.dart';
 import 'package:nexus/data/repositories/timetable_view_repository_impl.dart';
 import 'package:nexus/domain/repositories/timetable_repository.dart';
+import 'package:nexus/presentation/cubits/batch_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
@@ -45,6 +46,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<TimeTableManagerCubit>(
           create: (_) => TimeTableManagerCubit(timetableRepository: timetableRepository),
+        ),
+        BlocProvider<BatchCubit>(
+          create: (context) => BatchCubit(),
         ),
       ],
       child: MaterialApp(
