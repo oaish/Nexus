@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:nexus/presentation/cubits/batch_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 
 class ReorderableTimeSlotTile extends StatelessWidget {
@@ -27,7 +28,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
         return Colors.pinkAccent;
       case "TT":
         return Colors.deepOrangeAccent;
-      case null:
+      case "AC":
         return Colors.greenAccent;
     }
 
@@ -36,7 +37,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget? dynamicSlot;
+    Widget dynamicSlot;
     Color accentColor;
 
     switch (slot.type) {
@@ -53,14 +54,14 @@ class ReorderableTimeSlotTile extends StatelessWidget {
         accentColor = Colors.deepOrangeAccent;
         dynamicSlot = _subSlotColumn(context, isPractical: false);
         break;
-      case null:
+      case "AC":
         accentColor = Colors.greenAccent;
-        dynamicSlot = _nullSlotColumn();
+        dynamicSlot = _activitySlotColumn();
         break;
 
       default:
         accentColor = Colors.greenAccent;
-        dynamicSlot = _nullSlotColumn();
+        dynamicSlot = _activitySlotColumn();
         break;
     }
 
@@ -69,19 +70,36 @@ class ReorderableTimeSlotTile extends StatelessWidget {
         top: index == 0 ? 16.0 : 8.0,
         bottom: 8.0,
         left: 16.0,
-        right: 16.0,
+        // right: 16.0,
+        right: 0,
       ),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: accentColor, width: 5), right: BorderSide(color: accentColor, width: 5)),
+        border: Border(
+          left: BorderSide(color: accentColor, width: 5),
+        ),
         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
         // color: Colors.grey[700]!,
         color: const Color(0xff222222),
         // color: const Color(0xff181818),
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
 
-        borderRadius: BorderRadius.circular(8),
+        // borderRadius: BorderRadius.circular(8),
       ),
-      child: dynamicSlot,
+      child: Row(
+        // spacing: 2,
+        children: [
+          Expanded(child: dynamicSlot),
+          SizedBox(
+            width: 20,
+            child: HugeIcon(
+              icon: HugeIcons.strokeRoundedDragDropVertical,
+              color: accentColor,
+              size: 30,
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -161,9 +179,9 @@ class ReorderableTimeSlotTile extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     if (isPractical) {
-                      context.read<TimeTableViewCubit>().circleBatch();
+                      context.read<BatchCubit>().circleBatch();
                     } else {
-                      context.read<TimeTableViewCubit>().circleGroup();
+                      context.read<BatchCubit>().circleGroup();
                     }
                   },
                   child: _slotLabel(HugeIcons.strokeRoundedUserMultiple, isPractical ? subSlot.batch : subSlot.group),
@@ -176,7 +194,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
     );
   }
 
-  Widget? _nullSlotColumn() {
+  Widget _activitySlotColumn() {
     return Row(
       spacing: 10,
       children: [
@@ -238,8 +256,10 @@ class ReorderableTimeSlotTile extends StatelessWidget {
   }
 }
 
-class NoSlotTile extends StatelessWidget {
-  const NoSlotTile({super.key});
+class EditorNoSlotTile extends StatelessWidget {
+  const EditorNoSlotTile(this.weekDay, {super.key});
+
+  final String weekDay;
 
   @override
   Widget build(BuildContext context) {
@@ -247,8 +267,10 @@ class NoSlotTile extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
       decoration: BoxDecoration(
-        border:
-            const Border(left: BorderSide(color: Colors.red, width: 5), right: BorderSide(color: Colors.red, width: 5)),
+        border: const Border(
+          left: BorderSide(color: Colors.blue, width: 5),
+          right: BorderSide(color: Colors.blue, width: 5),
+        ),
         boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
         color: const Color(0xff222222),
         borderRadius: BorderRadius.circular(8),
@@ -270,8 +292,8 @@ class NoSlotTile extends StatelessWidget {
               width: 24.0,
               height: 24.0,
               child: HugeIcon(
-                icon: HugeIcons.strokeRoundedAlert02,
-                color: Colors.red,
+                icon: HugeIcons.strokeRoundedAlertCircle,
+                color: Colors.blue,
                 size: 16.0,
               ),
             ),
@@ -279,9 +301,9 @@ class NoSlotTile extends StatelessWidget {
             // Slot Text
             Container(
               padding: const EdgeInsets.all(4.0),
-              child: const Text(
-                'No slot available for this day',
-                style: TextStyle(
+              child: Text(
+                'No slot added for $weekDay',
+                style: const TextStyle(
                   fontFamily: 'Orbitron',
                   color: Colors.white60,
                   fontWeight: FontWeight.w600,

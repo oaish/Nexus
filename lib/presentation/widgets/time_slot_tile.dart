@@ -21,14 +21,15 @@ class TimeSlotTile extends StatelessWidget {
   Color? _getAccentColor(String? type) {
     switch (type) {
       case "MP":
+        return Colors.blue;
       case "TH":
         return Colors.deepPurpleAccent;
       case "PR":
         return Colors.pinkAccent;
       case "TT":
         return Colors.deepOrangeAccent;
-      case null:
-        return Colors.greenAccent;
+      case "AC":
+        return Colors.green;
     }
 
     return null;
@@ -41,6 +42,9 @@ class TimeSlotTile extends StatelessWidget {
 
     switch (slot.type) {
       case "MP":
+        accentColor = Colors.blue;
+        dynamicSlot = _theoryColumn();
+        break;
       case "TH":
         accentColor = Colors.deepPurpleAccent;
         dynamicSlot = _theoryColumn();
@@ -53,14 +57,14 @@ class TimeSlotTile extends StatelessWidget {
         accentColor = Colors.deepOrangeAccent;
         dynamicSlot = _subSlotColumn(context, isPractical: false);
         break;
-      case null:
-        accentColor = Colors.greenAccent;
-        dynamicSlot = _nullSlotColumn();
+      case "AC":
+        accentColor = Colors.green;
+        dynamicSlot = _activityColumn();
         break;
 
       default:
         accentColor = Colors.greenAccent;
-        dynamicSlot = _nullSlotColumn();
+        dynamicSlot = _activityColumn();
         break;
     }
 
@@ -176,7 +180,7 @@ class TimeSlotTile extends StatelessWidget {
     );
   }
 
-  Widget? _nullSlotColumn() {
+  Widget? _activityColumn() {
     return Row(
       spacing: 10,
       children: [

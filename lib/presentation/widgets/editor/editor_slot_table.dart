@@ -14,7 +14,8 @@ class EditorSlotTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _pageController = PageController(initialPage: 0);
+    final currentDay = context.read<WeekCubit>().state.selectedDay;
+    _pageController = PageController(initialPage: weekDays.indexOf(currentDay));
     int previousPageIndex = 0;
 
     return Expanded(
@@ -22,7 +23,6 @@ class EditorSlotTable extends StatelessWidget {
         builder: (context, state) {
           final current = context.read<TimeTableEditorCubit>().state as TimeTableEditorLoaded;
           final schedule = current.timetable.schedule;
-          print(schedule['Monday']![0].subject);
           return PageView(
             controller: _pageController,
             physics: const BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
@@ -37,34 +37,29 @@ class EditorSlotTable extends StatelessWidget {
               previousPageIndex = pageIndex;
             },
             children: List.generate(schedule.length, (weekIndex) {
-              final int? length = schedule[weekDays[weekIndex]]?.length;
-              return Padding(
-                padding: const EdgeInsets.all(0),
-                child: ReorderableListView(
-                  onReorder: (oldIndex, newIndex) {
-                    context.read<TimeTableEditorCubit>().reorderSlot(weekDays[weekIndex], oldIndex, newIndex);
-                  },
-                  children: List.generate(schedule[weekDays[weekIndex]]!.isNotEmpty ? length! : 1, (dayIndex) {
-                    if (schedule[weekDays[weekIndex]]!.isEmpty) {
-                      return const NoSlotTile(
-                        key: ValueKey('NoSlot'),
+              final int length = schedule[weekDays[weekIndex]]?.length ?? 0;
+              return ReorderableListView(
+                onReorder: (oldIndex, newIndex) {
+                  context.read<TimeTableEditorCubit>().reorderSlot(weekDays[weekIndex], oldIndex, newIndex);
+                },
+                children: List.generate(length == 0 ? 1 : length, (dayIndex) {
+                  return BlocBuilder<BatchCubit, BatchState>(
+                    key: ValueKey('$dayIndex'),
+                    builder: (context, batchState) {
+                      final current = batchState as BatchLoaded;
+                      if (length == 0) {
+                        return EditorNoSlotTile(weekDays[weekIndex]);
+                      }
+
+                      return ReorderableTimeSlotTile(
+                        slot: schedule[weekDays[weekIndex]]![dayIndex],
+                        index: dayIndex,
+                        batchIndex: current.batchIndex,
+                        groupIndex: current.groupIndex,
                       );
-                    } else {
-                      return BlocBuilder<BatchCubit, BatchState>(
-                        key: ValueKey('$dayIndex'),
-                        builder: (context, batchState) {
-                          final current = batchState as BatchLoaded;
-                          return ReorderableTimeSlotTile(
-                            slot: schedule[weekDays[weekIndex]]![dayIndex],
-                            index: dayIndex,
-                            batchIndex: current.batchIndex,
-                            groupIndex: current.groupIndex,
-                          );
-                        },
-                      );
-                    }
-                  }),
-                ),
+                    },
+                  );
+                }),
               );
             }),
           );

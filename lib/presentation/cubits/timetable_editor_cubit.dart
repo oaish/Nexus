@@ -7,6 +7,7 @@ import 'package:nexus/core/utils/timetable_extensions.dart';
 import 'package:nexus/data/models/timetable_slot_model.dart';
 import 'package:nexus/domain/entities/timetable.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 import 'timetable_editor_state.dart';
 
@@ -35,7 +36,7 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
       id: id,
       name: name,
       userId: userId,
-      schedule: schedule,
+      schedule: defaultSchedule,
       lastModified: DateTime.now(),
     );
 
@@ -67,6 +68,37 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     emit(TimeTableEditorLoaded(updatedTimeTable));
   }
 
+  List<String> getNextTimeSlot(String day, TimeOfDay duration) {
+    if (state is! TimeTableEditorLoaded) {
+      return ['00:00', '00:00'];
+    }
+
+    final current = state as TimeTableEditorLoaded;
+    final timetable = current.timetable;
+    final daySlots = timetable.schedule[day] ?? [];
+
+    // Get the last inserted slot's eTime or default to "09:00"
+    final lastETime = daySlots.isNotEmpty ? daySlots.last.eTime : "09:00";
+
+    // Convert lastETime to TimeOfDay
+    final lastETimeParts = lastETime.split(':');
+    final lastTime = TimeOfDay(
+      hour: int.parse(lastETimeParts[0]),
+      minute: int.parse(lastETimeParts[1]),
+    );
+
+    // Calculate the new end time
+    final newTime = lastTime.replacing(
+      hour: (lastTime.hour + duration.hour) % 24,
+      minute: (lastTime.minute + duration.minute) % 60,
+    );
+
+    // Format new time
+    final newETime = '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+
+    return [lastETime, newETime];
+  }
+
   void reorderSlot(String day, int oldIndex, int newIndex) {
     if (state is TimeTableEditorLoaded) {
       final current = state as TimeTableEditorLoaded;
@@ -86,7 +118,7 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
           daySlots.insert(newIndex, movedSlot);
 
           // Keep the first slot's start time unchanged
-          final String firstSlotStartTime = "9:00"; // Fixed start time
+          const String firstSlotStartTime = "9:00"; // Fixed start time
           String currentStartTime = firstSlotStartTime;
 
           // Recalculate times for all slots
@@ -128,49 +160,5 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
   DateTime _parseTime(String time) {
     List<String> parts = time.split(":");
     return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
-  }
-
-  void reorderSlot2(String day, int oldIndex, int newIndex) {
-    if (state is TimeTableEditorLoaded) {
-      final current = state as TimeTableEditorLoaded;
-      final timetable = current.timetable;
-      final updatedSchedule = Map<String, List<TimeTableSlot>>.from(timetable.schedule);
-
-      if (updatedSchedule.containsKey(day)) {
-        final daySlots = List<TimeTableSlot>.from(updatedSchedule[day]!);
-
-        if (oldIndex < daySlots.length && newIndex <= daySlots.length) {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-
-          final movedSlot = daySlots.removeAt(oldIndex);
-          daySlots.insert(newIndex, movedSlot);
-
-          // Update times in sequential order
-          for (int i = 0; i < daySlots.length; i++) {
-            if (i == 0) {
-              // First slot retains its original start time
-              continue;
-            }
-            daySlots[i] = daySlots[i].copyWith(
-              sTime: daySlots[i - 1].eTime, // New start time is previous slot's end time
-            );
-          }
-
-          updatedSchedule[day] = daySlots;
-
-          final updatedTimeTable = TimeTable(
-            id: timetable.id,
-            name: timetable.name,
-            userId: timetable.userId,
-            schedule: updatedSchedule,
-            lastModified: DateTime.now(),
-          );
-
-          emit(TimeTableEditorLoaded(updatedTimeTable));
-        }
-      }
-    }
   }
 }

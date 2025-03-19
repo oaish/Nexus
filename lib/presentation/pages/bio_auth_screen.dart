@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:nexus/core/constants/app_media.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+class BioAuthScreen extends StatefulWidget {
+  const BioAuthScreen({super.key});
 
   @override
-  State<AuthScreen> createState() => _AuthScreenState();
+  State<BioAuthScreen> createState() => _BioAuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _BioAuthScreenState extends State<BioAuthScreen> {
   final key = GlobalKey<ScaffoldMessengerState>();
   final auth = LocalAuthentication();
   late var isHovered = false;

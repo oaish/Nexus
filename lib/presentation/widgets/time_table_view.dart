@@ -166,13 +166,15 @@ class _TimeTableContent extends StatelessWidget {
 
           // Faculty & Location
           Visibility(
-            visible: slot.type != null,
+            visible: slot.type != null && slot.type != 'AC',
             child: Row(
               spacing: 5,
               children: [
                 Text(
                   slot.teacher ??
-                      (slot.type != null ? (slot.subSlots![slot.type == "PR" ? batchIndex : groupIndex].teacher)! : ''),
+                      (slot.type != null && slot.type != 'AC'
+                          ? (slot.subSlots![slot.type == "PR" ? batchIndex : groupIndex].teacher)!
+                          : ''),
                   style: TextStyles.labelLarge.copyWith(
                     color: Colors.deepPurple[100],
                   ),
@@ -180,7 +182,7 @@ class _TimeTableContent extends StatelessWidget {
                 Icon(Icons.circle_rounded, size: 5, color: Colors.deepPurple[100]!),
                 Text(
                   slot.location ??
-                      (slot.type != null
+                      (slot.type != null && slot.type != 'AC'
                           ? (slot.subSlots![slot.type == "PR" ? batchIndex : groupIndex].location)!
                           : ''),
                   style: TextStyles.labelLarge.copyWith(color: Colors.deepPurple[100]),
@@ -221,6 +223,7 @@ class _TimeTableContent extends StatelessWidget {
                   child: Text(
                     '${slot.sTime} - ${slot.eTime}',
                     style: const TextStyle(
+                      fontSize: 16,
                       fontFamily: 'Orbitron',
                       color: Colors.white60,
                       fontWeight: FontWeight.w600,

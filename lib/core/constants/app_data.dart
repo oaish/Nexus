@@ -39,7 +39,7 @@ var timeTable = {
   "Monday": [
     {"sTime": "9:00", "eTime": "10:00", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
     {"sTime": "10:00", "eTime": "11:00", "subject": "Python", "teacher": "Shainila", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": null},
+    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -65,7 +65,7 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": null},
+    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
     {
       "sTime": "14:00",
       "eTime": "15:00",
@@ -105,10 +105,10 @@ var timeTable = {
       "type": "TT"
     },
     {"sTime": "10:00", "eTime": "11:00", "subject": "DBMS", "teacher": "Sana A.", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": null},
+    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
     {"sTime": "11:15", "eTime": "12:15", "subject": "MP", "teacher": "Sejal", "location": "CR-4", "type": "TH"},
     {"sTime": "12:15", "eTime": "13:15", "subject": "Python", "teacher": "Shainila", "location": "CR-4", "type": "TH"},
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": null},
+    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -117,7 +117,7 @@ var timeTable = {
       "location": "CC-1, CC-2",
       "type": "MP"
     },
-    {"sTime": "16:00", "eTime": "17:00", "activity": "Remedial", "location": "SE-B", "type": null},
+    {"sTime": "16:00", "eTime": "17:00", "activity": "Remedial", "location": "SE-B", "type": "AC"},
   ],
   "Wednesday": [
     {
@@ -145,10 +145,10 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": null},
+    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
     {"sTime": "11:15", "eTime": "12:15", "subject": "OS", "teacher": "Dipti", "location": "CR-4", "type": "TH"},
     {"sTime": "12:15", "eTime": "13:15", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": null},
+    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -204,7 +204,7 @@ var timeTable = {
       "location": "CR-4",
       "type": "TH"
     },
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": null},
+    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -213,7 +213,7 @@ var timeTable = {
       "location": "CC",
       "type": "MP"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": null},
+    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -239,12 +239,18 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "16:00", "eTime": "17:00", "activity": "Remedial", "location": "SE_COMP-B", "type": null},
+    {
+      "sTime": "16:00",
+      "eTime": "17:00",
+      "activity": "Remedial",
+      "location": "SE_COMP-B",
+      "type": "AC",
+    },
   ],
   "Friday": [
     {"sTime": "9:00", "eTime": "10:00", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
     {"sTime": "10:00", "eTime": "11:00", "subject": "MP", "teacher": "Sejal", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": null},
+    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -270,7 +276,7 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": null},
+    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
     {"sTime": "14:00", "eTime": "15:00", "subject": "DBMS", "teacher": "Sana A.", "location": "CR-4", "type": "TH"},
     {"sTime": "15:00", "eTime": "16:00", "subject": "OS", "teacher": "Dipti", "location": "CR-4", "type": "TH"},
     {
@@ -284,4 +290,51 @@ var timeTable = {
   ],
   "Saturday": [],
   "Sunday": [],
+};
+
+var timetableSuggestions = {
+  'Subject': [
+    "AOA",
+    "Python",
+    "MP",
+    "OS",
+    "EM-IV",
+    "DBMS",
+    "Mini Project",
+    "AOA LAB",
+    "MP LAB",
+    "OS Lab",
+    "DBMS LAB",
+    "Python LAB"
+  ],
+  'Activity': ["Short Break", "Lunch Break", "Remedial", "Mentoring", "EM-IV TUT"],
+  'Location': [
+    'CC-1',
+    'CC-2',
+    'CL-1',
+    'CL-2',
+    'CL-3',
+    'CL-4',
+    'CL-5',
+    'CL-6',
+    'CL-7',
+    'CR-1',
+    'CR-2',
+    'CR-3',
+    'CR-4',
+    'CR-5'
+  ],
+  'Faculty': [
+    "Imran Sir",
+    "Dr. Amiya Sir",
+    "Shainila Ma'am",
+    "Sejal Ma'am",
+    "Dipti Ma'am",
+    "Dr. Revathy Ma'am",
+    "Sana Ma'am",
+    "Mayura Ma'am",
+    "Kalpita Ma'am",
+    "Himani J Ma'am",
+    "Varsha K Ma'am"
+  ],
 };
