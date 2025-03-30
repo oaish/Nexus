@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive/hive.dart';
 import 'package:nexus/app.dart';
+import 'package:nexus/core/config/supabase_config.dart';
 import 'package:nexus/core/utils/window_resize_utils.dart';
 import 'package:nexus/data/datasources/timetable_local_data_source.dart';
 import 'package:nexus/data/models/sub_slot_model.dart';
@@ -14,6 +16,9 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
+  await dotenv.load(fileName: ".env");
+
   if (Platform.isWindows) {
     await windowManager.ensureInitialized();
 
@@ -42,5 +47,7 @@ void main() async {
   final localDataSource = TimeTableLocalDataSource();
   final timetableRepository = TimeTableRepositoryImpl(localDataSource: localDataSource);
 
-  runApp(MyApp(timetableRepository: timetableRepository));
+  runApp(
+    MyApp(timetableRepository: timetableRepository),
+  );
 }

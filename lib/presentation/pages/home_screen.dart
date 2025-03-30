@@ -6,6 +6,7 @@ import 'package:nexus/core/constants/app_media.dart';
 import 'package:nexus/core/widgets/event_card.dart';
 import 'package:nexus/core/widgets/link_tile.dart';
 import 'package:nexus/core/widgets/section_header.dart';
+import 'package:nexus/presentation/cubits/auth_cubit.dart';
 import 'package:nexus/presentation/cubits/week_cubit.dart';
 import 'package:nexus/presentation/widgets/time_table_view.dart';
 
@@ -65,7 +66,12 @@ class HomeScreen extends StatelessWidget {
 
   _upcomingEventsSection(context) => Column(
         children: [
-          const SectionHeader(text: 'Upcoming events'),
+          SectionHeader(
+            text: 'Upcoming events',
+            onTap: () {
+              context.read<AuthCubit>().signOut();
+            },
+          ),
           const SizedBox(height: 16),
           Visibility(
             visible: colorAccentArray.isNotEmpty,

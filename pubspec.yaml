@@ -35,6 +35,9 @@ dependencies:
   awesome_snackbar_content: ^0.1.5
   home_widget: ^0.7.0+1
   shadcn_flutter: ^0.0.24
+  supabase_flutter: ^2.3.4
+  flutter_dotenv: ^5.2.1
+  google_sign_in: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +51,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/icons/
+    - .env
   fonts:
     - family: NovaFlat
       fonts:
