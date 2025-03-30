@@ -8,7 +8,8 @@ import 'timetable_manager_state.dart';
 class TimeTableManagerCubit extends Cubit<TimeTableManagerState> {
   final TimeTableRepository timetableRepository;
 
-  TimeTableManagerCubit({required this.timetableRepository}) : super(TimeTableManagerInitial());
+  TimeTableManagerCubit({required this.timetableRepository})
+      : super(TimeTableManagerInitial());
 
   Future<void> loadTimeTables() async {
     try {
@@ -25,6 +26,15 @@ class TimeTableManagerCubit extends Cubit<TimeTableManagerState> {
       await loadTimeTables();
     } catch (e) {
       emit(TimeTableManagerError('Failed to save timetable: $e'));
+    }
+  }
+
+  Future<void> deleteTimeTable(int id) async {
+    try {
+      await timetableRepository.deleteTimeTable(id);
+      await loadTimeTables();
+    } catch (e) {
+      emit(TimeTableManagerError('Failed to delete timetable: $e'));
     }
   }
 
