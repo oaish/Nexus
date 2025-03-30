@@ -30,6 +30,9 @@ class TimeTableRepositoryImpl implements TimeTableRepository {
           // Assume timetable.schedule already contains model objects.
           return MapEntry(key, value.cast());
         }),
+        department: timetable.department,
+        year: timetable.year,
+        division: timetable.division,
       );
       await localDataSource.saveTimeTable(model);
     }

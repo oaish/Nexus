@@ -19,6 +19,9 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     required int id,
     required String name,
     required String userId,
+    required String department,
+    required String year,
+    required String division,
   }) {
     final defaultSchedule = {
       'Monday': <TimeTableSlot>[],
@@ -30,14 +33,18 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
       'Sunday': <TimeTableSlot>[],
     };
 
-    final schedule = <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
+    final schedule =
+        <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
 
     final timetable = TimeTable(
       id: id,
       name: name,
       userId: userId,
-      schedule: defaultSchedule,
+      schedule: schedule,
       lastModified: DateTime.now(),
+      department: department,
+      year: year,
+      division: division,
     );
 
     emit(TimeTableEditorLoaded(timetable));
@@ -48,7 +55,8 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     if (state is TimeTableEditorLoaded) {
       final current = state as TimeTableEditorLoaded;
       final timetable = current.timetable;
-      final updatedSchedule = Map<String, List<TimeTableSlot>>.from(timetable.schedule);
+      final updatedSchedule =
+          Map<String, List<TimeTableSlot>>.from(timetable.schedule);
       final daySlots = List<TimeTableSlot>.from(updatedSchedule[day] ?? []);
       daySlots.add(slot);
       updatedSchedule[day] = daySlots;
@@ -58,6 +66,9 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
         userId: timetable.userId,
         schedule: updatedSchedule,
         lastModified: DateTime.now(),
+        department: timetable.department,
+        year: timetable.year,
+        division: timetable.division,
       );
       emit(TimeTableEditorLoaded(updatedTimeTable));
     }
@@ -94,7 +105,8 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     );
 
     // Format new time
-    final newETime = '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
+    final newETime =
+        '${newTime.hour.toString().padLeft(2, '0')}:${newTime.minute.toString().padLeft(2, '0')}';
 
     return [lastETime, newETime];
   }
@@ -103,7 +115,8 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     if (state is TimeTableEditorLoaded) {
       final current = state as TimeTableEditorLoaded;
       final timetable = current.timetable;
-      final updatedSchedule = Map<String, List<TimeTableSlot>>.from(timetable.schedule);
+      final updatedSchedule =
+          Map<String, List<TimeTableSlot>>.from(timetable.schedule);
 
       if (updatedSchedule.containsKey(day)) {
         final daySlots = List<TimeTableSlot>.from(updatedSchedule[day]!);
@@ -123,11 +136,15 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
 
           // Recalculate times for all slots
           for (int i = 0; i < daySlots.length; i++) {
-            int durationMinutes = _calculateDuration(daySlots[i].sTime, daySlots[i].eTime);
-            String newEndTime = _addMinutesToTime(currentStartTime, durationMinutes);
+            int durationMinutes =
+                _calculateDuration(daySlots[i].sTime, daySlots[i].eTime);
+            String newEndTime =
+                _addMinutesToTime(currentStartTime, durationMinutes);
 
-            daySlots[i] = daySlots[i].copyWith(sTime: currentStartTime, eTime: newEndTime);
-            currentStartTime = newEndTime; // Next slot starts from the last slot's end time
+            daySlots[i] = daySlots[i]
+                .copyWith(sTime: currentStartTime, eTime: newEndTime);
+            currentStartTime =
+                newEndTime; // Next slot starts from the last slot's end time
           }
 
           updatedSchedule[day] = daySlots;
@@ -138,6 +155,9 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
             userId: timetable.userId,
             schedule: updatedSchedule,
             lastModified: DateTime.now(),
+            department: timetable.department,
+            year: timetable.year,
+            division: timetable.division,
           );
 
           emit(TimeTableEditorLoaded(updatedTimeTable));
