@@ -22,18 +22,33 @@ class TimeTableModel extends TimeTable {
   @HiveField(4)
   final Map<String, List<TimeTableSlotModel>> schedule;
 
+  @HiveField(5)
+  final String department;
+
+  @HiveField(6)
+  final String year;
+
+  @HiveField(7)
+  final String division;
+
   TimeTableModel({
     required this.id,
     required this.name,
     required this.userId,
     required this.lastModified,
     required this.schedule,
+    required this.department,
+    required this.year,
+    required this.division,
   }) : super(
           id: id,
           name: name,
           userId: userId,
           lastModified: lastModified,
           schedule: schedule,
+          department: department,
+          year: year,
+          division: division,
         );
 
   factory TimeTableModel.fromJson(Map<String, dynamic> json) {
@@ -45,9 +60,14 @@ class TimeTableModel extends TimeTable {
       schedule: (json['schedule'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(
           key,
-          (value as List).map((slot) => TimeTableSlotModel.fromJson(slot)).toList(),
+          (value as List)
+              .map((slot) => TimeTableSlotModel.fromJson(slot))
+              .toList(),
         ),
       ),
+      department: json['department'] ?? 'COMPS',
+      year: json['year'] ?? 'SE',
+      division: json['division'] ?? 'A',
     );
   }
 
@@ -63,6 +83,9 @@ class TimeTableModel extends TimeTable {
           value.map((slot) => slot.toJson()).toList(),
         ),
       ),
+      'department': department,
+      'year': year,
+      'division': division,
     };
   }
 }

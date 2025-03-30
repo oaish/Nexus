@@ -23,13 +23,16 @@ class TimeTableModelAdapter extends TypeAdapter<TimeTableModel> {
       lastModified: fields[3] as DateTime,
       schedule: (fields[4] as Map).map((dynamic k, dynamic v) =>
           MapEntry(k as String, (v as List).cast<TimeTableSlotModel>())),
+      department: fields[5] as String,
+      year: fields[6] as String,
+      division: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, TimeTableModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -39,7 +42,13 @@ class TimeTableModelAdapter extends TypeAdapter<TimeTableModel> {
       ..writeByte(3)
       ..write(obj.lastModified)
       ..writeByte(4)
-      ..write(obj.schedule);
+      ..write(obj.schedule)
+      ..writeByte(5)
+      ..write(obj.department)
+      ..writeByte(6)
+      ..write(obj.year)
+      ..writeByte(7)
+      ..write(obj.division);
   }
 
   @override

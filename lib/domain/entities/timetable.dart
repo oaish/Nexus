@@ -6,6 +6,9 @@ class TimeTable {
   final String userId; // Supabase User Id
   final DateTime lastModified;
   final Map<String, List<TimeTableSlot>> schedule;
+  final String department;
+  final String year;
+  final String division;
 
   TimeTable({
     required this.id,
@@ -13,5 +16,8 @@ class TimeTable {
     required this.userId,
     required this.schedule,
     required this.lastModified,
+    required this.department,
+    required this.year,
+    required this.division,
   });
 }

@@ -14,7 +14,6 @@ final class TimeSlotLoaded extends TimeSlotState {
   final String? activity;
   final Duration? duration;
   final List<SubSlot>? subSlots;
-
   const TimeSlotLoaded({
     this.type,
     this.subject,
