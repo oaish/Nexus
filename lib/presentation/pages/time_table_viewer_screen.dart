@@ -8,6 +8,8 @@ import 'package:nexus/core/constants/app_data.dart';
 import 'package:nexus/core/utils/timetable_extensions.dart';
 import 'package:nexus/core/widgets/nexus_back_button.dart';
 import 'package:nexus/data/models/timetable_slot_model.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 import 'package:nexus/presentation/cubits/week_cubit.dart';
 import 'package:nexus/presentation/widgets/time_slot_tile.dart';
@@ -21,6 +23,10 @@ class TimeTableViewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final schedule =
+        (context.read<TimeTableManagerCubit>().state as TimeTableManagerLoaded)
+            .currentTimeTable
+            ?.schedule;
     final colorScheme = Theme.of(context).colorScheme;
     final currentDay = DateFormat('EEEE').format(DateTime.now());
     _pageController = PageController(initialPage: weekDays.indexOf(currentDay));
@@ -74,21 +80,6 @@ class TimeTableViewerScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // GestureDetector(
-                      //   onTap: () => _showBottomModal(context),
-                      //   child: Container(
-                      //     padding: const EdgeInsets.all(8.0),
-                      //     decoration: BoxDecoration(
-                      //       color: colorScheme.primary,
-                      //       borderRadius: BorderRadius.circular(10),
-                      //     ),
-                      //     child: HugeIcon(
-                      //       icon: HugeIcons.strokeRoundedSettings03,
-                      //       color: colorScheme.onPrimary,
-                      //       size: 24.0,
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -101,7 +92,7 @@ class TimeTableViewerScreen extends StatelessWidget {
               ),
 
               // Slot Table
-              _slotTable(context),
+              _slotTable(context, schedule),
             ],
           ),
         ),
@@ -109,9 +100,7 @@ class TimeTableViewerScreen extends StatelessWidget {
     );
   }
 
-  Widget _slotTable(context) {
-    final schedule = <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
-
+  Widget _slotTable(context, schedule) {
     int previousPageIndex = 0;
 
     return Expanded(
@@ -123,7 +112,8 @@ class TimeTableViewerScreen extends StatelessWidget {
 
           return PageView(
             controller: _pageController,
-            physics: const BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
+            physics: const BouncingScrollPhysics(
+                decelerationRate: ScrollDecelerationRate.fast),
             onPageChanged: (int pageIndex) {
               if (!isProgrammaticChange) {
                 if (pageIndex > previousPageIndex) {
@@ -139,7 +129,8 @@ class TimeTableViewerScreen extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.all(0),
                 child: ListView.builder(
-                  itemCount: schedule[weekDays[weekIndex]]!.isNotEmpty ? length : 1,
+                  itemCount:
+                      schedule[weekDays[weekIndex]]!.isNotEmpty ? length : 1,
                   itemBuilder: (BuildContext context, int dayIndex) {
                     if (schedule[weekDays[weekIndex]]!.isEmpty) {
                       return const NoSlotTile();
@@ -220,7 +211,8 @@ class TimeTableViewerScreen extends StatelessWidget {
                         settingsTile(
                           'Create Timetable',
                           icon: HugeIcons.strokeRoundedPropertyAdd,
-                          onTap: () => Navigator.pushNamed(context, '/time-table-editor'),
+                          onTap: () => Navigator.pushNamed(
+                              context, '/time-table-editor'),
                         ),
                         settingsTile(
                           'Edit Timetable',

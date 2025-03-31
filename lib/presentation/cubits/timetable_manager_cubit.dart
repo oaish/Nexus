@@ -29,7 +29,7 @@ class TimeTableManagerCubit extends Cubit<TimeTableManagerState> {
     }
   }
 
-  Future<void> deleteTimeTable(int id) async {
+  Future<void> deleteTimeTable(String id) async {
     try {
       await timetableRepository.deleteTimeTable(id);
       await loadTimeTables();

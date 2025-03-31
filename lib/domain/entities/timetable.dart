@@ -1,9 +1,9 @@
 import 'package:nexus/domain/entities/timetable_slot.dart';
 
 class TimeTable {
-  final int id;
+  final String id; // Changed from int to String for UUID
   final String name;
-  final String userId; // Supabase User Id
+  final String userId;
   final DateTime lastModified;
   final Map<String, List<TimeTableSlot>> schedule;
   final String department;

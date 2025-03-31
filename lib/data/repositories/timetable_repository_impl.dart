@@ -44,7 +44,11 @@ class TimeTableRepositoryImpl implements TimeTableRepository {
   }
 
   @override
-  Future<void> deleteTimeTable(int id) async {
-    await localDataSource.deleteTimeTable(id);
+  Future<void> deleteTimeTable(String id) async {
+    try {
+      await localDataSource.deleteTimeTable(id);
+    } catch (e) {
+      throw Exception('Failed to delete timetable: $e');
+    }
   }
 }

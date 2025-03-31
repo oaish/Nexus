@@ -42,7 +42,7 @@ class TimeTableLocalDataSource {
     }
   }
 
-  Future<void> deleteTimeTable(int id) async {
+  Future<void> deleteTimeTable(String id) async {
     try {
       final box = await _openBox();
       await box.delete(id);

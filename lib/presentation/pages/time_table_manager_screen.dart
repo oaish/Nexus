@@ -1,13 +1,13 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:nexus/core/constants/app_styles.dart';
 import 'package:nexus/core/widgets/nexus_back_button.dart';
+import 'package:nexus/domain/entities/timetable.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
+import 'package:uuid/uuid.dart';
 
 class TimeTableManagerScreen extends StatefulWidget {
   const TimeTableManagerScreen({super.key});
@@ -20,6 +20,7 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
   bool isPublic = true;
   bool isExpanded = true;
   bool isSelectExpanded = true;
+  bool isLocalTimetables = true; // Toggle between local and cloud timetables
 
   final List<String> departments = [
     'COMPS',
@@ -27,7 +28,6 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
     'EXTC',
     'MECH',
     'CIVIL',
-    'ETRX'
   ];
   final List<String> years = ['FE', 'SE', 'TE', 'BE'];
   final List<String> divisions = ['A', 'B', 'C'];
@@ -36,6 +36,16 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
   String selectedYear = 'SE';
   String selectedDivision = 'A';
   final TextEditingController _nameController = TextEditingController();
+
+  // Filtered timetables based on selected filters
+  List<TimeTable> getFilteredTimetables(List<TimeTable> timetables) {
+    return timetables
+        .where((tt) =>
+            tt.department == selectedDepartment &&
+            tt.year == selectedYear &&
+            tt.division == selectedDivision)
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +83,106 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
               ),
             ),
 
+            // Currently Selected Timetable Card
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF222222),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Currently Selected',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontFamily: 'Orbitron',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  BlocBuilder<TimeTableManagerCubit, TimeTableManagerState>(
+                    builder: (context, state) {
+                      if (state is TimeTableManagerLoaded &&
+                          state.currentTimeTable != null) {
+                        final timetable = state.currentTimeTable!;
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      timetable.name,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontFamily: 'Orbitron',
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                          context, '/time-table-editor');
+                                    },
+                                    icon: const Icon(
+                                      Icons.visibility,
+                                      color: Colors.white70,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${timetable.department} - ${timetable.year} - ${timetable.division}',
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 12,
+                                  fontFamily: 'Orbitron',
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A1A1A),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'No timetable selected',
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 12,
+                              fontFamily: 'Orbitron',
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Spacing between cards
+            const SizedBox(height: 24),
+
             // Create Timetable Card
             Container(
               padding: const EdgeInsets.all(24),
@@ -105,13 +215,14 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
 
                   // Collapsible content
                   AnimatedCrossFade(
                     firstChild: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const SizedBox(height: 16),
+
                         // Timetable Name Input
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -342,188 +453,281 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
 
                   // Collapsible content
                   AnimatedCrossFade(
                     firstChild: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Local Timetables List
-                        BlocBuilder<TimeTableManagerCubit,
-                            TimeTableManagerState>(
-                          builder: (context, state) {
-                            if (state is TimeTableManagerLoaded) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Local Timetables',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                          fontFamily: 'Orbitron',
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () {
-                                          // Refresh local timetables
-                                          context
-                                              .read<TimeTableManagerCubit>()
-                                              .loadTimeTables();
-                                        },
-                                        icon: Icon(
-                                          Icons.refresh,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  ...state.timetables.map(
-                                    (timetable) => Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1A1A1A),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  timetable.name,
-                                                  style: const TextStyle(
-                                                    color: Colors.white70,
-                                                    fontFamily: 'Orbitron',
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  '${timetable.department} - ${timetable.year} - ${timetable.division}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white38,
-                                                    fontSize: 12,
-                                                    fontFamily: 'Orbitron',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  // Edit timetable
-                                                  context
-                                                      .read<
-                                                          TimeTableEditorCubit>()
-                                                      .createTimeTable(
-                                                        id: timetable.id,
-                                                        name: timetable.name,
-                                                        userId:
-                                                            timetable.userId,
-                                                        department: timetable
-                                                            .department,
-                                                        year: timetable.year,
-                                                        division:
-                                                            timetable.division,
-                                                      );
-                                                  Navigator.pushNamed(context,
-                                                      '/time-table-editor');
-                                                },
-                                                icon: const Icon(
-                                                  Icons.edit,
-                                                  color: Colors.white70,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                              IconButton(
-                                                onPressed: () {
-                                                  // Delete timetable
-                                                  context
-                                                      .read<
-                                                          TimeTableManagerCubit>()
-                                                      .deleteTimeTable(
-                                                          timetable.id);
-                                                },
-                                                icon: const Icon(
-                                                  Icons.delete,
-                                                  color: Colors.redAccent,
-                                                  size: 20,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          },
-                        ),
+                        const SizedBox(height: 16),
 
-                        const SizedBox(height: 24),
-
-                        // Cloud Timetables Section
+                        // Toggle between Local and Cloud Timetables
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Cloud Timetables',
+                              isLocalTimetables
+                                  ? 'Local Timetables'
+                                  : 'Cloud Timetables',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Theme.of(context).colorScheme.onSurface,
                                 fontFamily: 'Orbitron',
                               ),
                             ),
-                            IconButton(
-                              onPressed: () {
-                                // TODO: Fetch cloud timetables
-                              },
-                              icon: Icon(
-                                Icons.cloud_download,
-                                color: Theme.of(context).colorScheme.onSurface,
+                            shadcn.Switch(
+                              value: isLocalTimetables,
+                              onChanged: (value) =>
+                                  setState(() => isLocalTimetables = value),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Filters
+                        Row(
+                          children: [
+                            // Department Filter
+                            Expanded(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1A1A1A),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedDepartment,
+                                  isExpanded: true,
+                                  underline: const SizedBox(),
+                                  dropdownColor: const Color(0xFF1A1A1A),
+                                  style: const TextStyle(
+                                    fontFamily: 'Orbitron',
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                  items: departments.map((String department) {
+                                    return DropdownMenuItem<String>(
+                                      value: department,
+                                      child: Text(department),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(
+                                          () => selectedDepartment = newValue);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Year Filter
+                            Expanded(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1A1A1A),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedYear,
+                                  isExpanded: true,
+                                  underline: const SizedBox(),
+                                  dropdownColor: const Color(0xFF1A1A1A),
+                                  style: const TextStyle(
+                                    fontFamily: 'Orbitron',
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                  items: years.map((String year) {
+                                    return DropdownMenuItem<String>(
+                                      value: year,
+                                      child: Text(year),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() => selectedYear = newValue);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Division Filter
+                            Expanded(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1A1A1A),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: selectedDivision,
+                                  isExpanded: true,
+                                  underline: const SizedBox(),
+                                  dropdownColor: const Color(0xFF1A1A1A),
+                                  style: const TextStyle(
+                                    fontFamily: 'Orbitron',
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                  ),
+                                  items: divisions.map((String division) {
+                                    return DropdownMenuItem<String>(
+                                      value: division,
+                                      child: Text(division),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(
+                                          () => selectedDivision = newValue);
+                                    }
+                                  },
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Coming Soon',
-                              style: TextStyle(
-                                color: Colors.white38,
-                                fontFamily: 'Orbitron',
-                              ),
-                            ),
-                          ),
+                        const SizedBox(height: 16),
+
+                        // Timetables List
+                        BlocBuilder<TimeTableManagerCubit,
+                            TimeTableManagerState>(
+                          builder: (context, state) {
+                            if (state is TimeTableManagerLoaded) {
+                              final filteredTimetables =
+                                  getFilteredTimetables(state.timetables);
+                              return Column(
+                                children: filteredTimetables
+                                    .map((timetable) => Container(
+                                          margin:
+                                              const EdgeInsets.only(bottom: 8),
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1A1A1A),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      timetable.name,
+                                                      style: const TextStyle(
+                                                        color: Colors.white70,
+                                                        fontFamily: 'Orbitron',
+                                                        fontSize: 16,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (!isLocalTimetables)
+                                                    IconButton(
+                                                      onPressed: () {
+                                                        // TODO: Implement download from cloud
+                                                        context
+                                                            .read<
+                                                                TimeTableManagerCubit>()
+                                                            .saveTimeTable(
+                                                                timetable);
+                                                      },
+                                                      icon: const Icon(
+                                                        Icons.download,
+                                                        color: Colors.white70,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Created by: ${timetable.userId}',
+                                                style: const TextStyle(
+                                                  color: Colors.white38,
+                                                  fontSize: 12,
+                                                  fontFamily: 'Orbitron',
+                                                ),
+                                              ),
+                                              Text(
+                                                'Last modified: ${timetable.lastModified.toString().split('.')[0]}',
+                                                style: const TextStyle(
+                                                  color: Colors.white38,
+                                                  fontSize: 12,
+                                                  fontFamily: 'Orbitron',
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              TimeTableEditorCubit>()
+                                                          .editTimeTable(
+                                                            id: timetable.id,
+                                                            name:
+                                                                timetable.name,
+                                                            userId: timetable
+                                                                .userId,
+                                                            department:
+                                                                timetable
+                                                                    .department,
+                                                            year:
+                                                                timetable.year,
+                                                            division: timetable
+                                                                .division,
+                                                            schedule: timetable
+                                                                .schedule,
+                                                          );
+                                                      Navigator.pushNamed(
+                                                          context,
+                                                          '/time-table-editor');
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.edit,
+                                                      color: Colors.white70,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              TimeTableManagerCubit>()
+                                                          .deleteTimeTable(
+                                                              timetable.id);
+                                                    },
+                                                    icon: const Icon(
+                                                      Icons.delete,
+                                                      color: Colors.redAccent,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ))
+                                    .toList(),
+                              );
+                            }
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          },
                         ),
                       ],
                     ),
@@ -560,18 +764,12 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
     final TimeTableEditorCubit editorCubit =
         context.read<TimeTableEditorCubit>();
     editorCubit.createTimeTable(
-      id: DateTime.now().millisecondsSinceEpoch,
       name: name,
-      userId: '${DateTime.now().millisecondsSinceEpoch}',
+      userId: const Uuid().v4(),
       department: selectedDepartment,
       year: selectedYear,
       division: selectedDivision,
     );
-
-    if (isPublic) {
-      // TODO: Upload to Supabase
-      print('Uploading to Supabase...');
-    }
 
     Navigator.pushNamed(context, '/time-table-editor');
   }

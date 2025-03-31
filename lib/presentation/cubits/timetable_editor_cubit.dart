@@ -8,6 +8,7 @@ import 'package:nexus/data/models/timetable_slot_model.dart';
 import 'package:nexus/domain/entities/timetable.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import 'timetable_editor_state.dart';
 
@@ -16,7 +17,6 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
 
   /// Creates a new timetable with default schedule.
   void createTimeTable({
-    required int id,
     required String name,
     required String userId,
     required String department,
@@ -36,6 +36,30 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     final schedule =
         <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
 
+    final timetable = TimeTable(
+      id: const Uuid().v4(),
+      name: name,
+      userId: userId,
+      schedule: schedule,
+      lastModified: DateTime.now(),
+      department: department,
+      year: year,
+      division: division,
+    );
+
+    emit(TimeTableEditorLoaded(timetable));
+  }
+
+  /// Edits an existing timetable.
+  void editTimeTable({
+    required String id,
+    required String name,
+    required String userId,
+    required String department,
+    required String year,
+    required String division,
+    required Map<String, List<TimeTableSlot>> schedule,
+  }) {
     final timetable = TimeTable(
       id: id,
       name: name,

@@ -1,7 +1,7 @@
 name: nexus
 description: "Nexus is your all-in-one personal assistant app designed to simplify and streamline your daily life. Whether you need reminders, a secure place to store passwords, a hub for saving links, notes, and documents, or just an organized way to manage tasks, Nexus has you covered."
 
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -38,6 +38,7 @@ dependencies:
   supabase_flutter: ^2.3.4
   flutter_dotenv: ^5.2.1
   google_sign_in: ^6.3.0
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:
@@ -84,31 +85,3 @@ flutter:
           weight: 200
         - asset: packages/shadcn_flutter/fonts/Geist-Regular.otf
           weight: 400
-
-  
-
-  
-  
-
-  
-  
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  

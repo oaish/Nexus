@@ -17,7 +17,7 @@ class TimeTableModelAdapter extends TypeAdapter<TimeTableModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TimeTableModel(
-      id: fields[0] as int,
+      id: fields[0] as String,
       name: fields[1] as String,
       userId: fields[2] as String,
       lastModified: fields[3] as DateTime,

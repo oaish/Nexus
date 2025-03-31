@@ -8,7 +8,7 @@ part 'timetable_model.g.dart';
 @HiveType(typeId: 2)
 class TimeTableModel extends TimeTable {
   @HiveField(0)
-  final int id;
+  final String id;
 
   @HiveField(1)
   final String name;
@@ -71,6 +71,19 @@ class TimeTableModel extends TimeTable {
     );
   }
 
+  factory TimeTableModel.fromSupabase(Map<String, dynamic> json) {
+    return TimeTableModel(
+      id: json['id'],
+      name: json['name'],
+      userId: json['user_id'],
+      lastModified: DateTime.parse(json['last_modified']),
+      department: json['department'],
+      year: json['year'],
+      division: json['division'],
+      schedule: {}, // Load schedule separately
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -86,6 +99,16 @@ class TimeTableModel extends TimeTable {
       'department': department,
       'year': year,
       'division': division,
+    };
+  }
+
+  Map<String, dynamic> toSupabase() {
+    return {
+      'name': name,
+      'department': department,
+      'year': year,
+      'division': division,
+      'is_public': false, // Add this if you want to control public access
     };
   }
 }
