@@ -37,7 +37,7 @@ class TimeTableViewCubit extends Cubit<TimeTableViewState> {
           currentDayIndex: 0,
         ));
       } else {
-        emit(TimeTableViewError('No timetable selected'));
+        emit(const TimeTableViewError('No timetable selected'));
       }
     } catch (e) {
       emit(TimeTableViewError('Failed to load timetable: $e'));

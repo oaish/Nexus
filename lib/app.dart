@@ -64,7 +64,8 @@ class MyApp extends StatelessWidget {
             ),
             BlocProvider<TimeTableViewCubit>(
               create: (context) =>
-                  TimeTableViewCubit(context.read<TimeTableManagerCubit>()),
+                  TimeTableViewCubit(context.read<TimeTableManagerCubit>())
+                    ..loadTimeTable(),
             ),
             BlocProvider<TimeTableEditorCubit>(
               create: (context) => TimeTableEditorCubit(

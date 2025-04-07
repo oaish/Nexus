@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart' as mat;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:nexus/core/constants/app_data.dart';
 import 'package:nexus/core/constants/app_styles.dart';
 import 'package:nexus/core/widgets/shad_auto_complete.dart';
 import 'package:nexus/data/models/sub_slot_model.dart';
 import 'package:nexus/data/models/timetable_slot_model.dart';
-import 'package:nexus/domain/entities/timetable_slot.dart';
 import 'package:nexus/presentation/cubits/time_slot_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
@@ -16,7 +17,6 @@ class AddTimeSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accentColor = Color(0xff80d4da);
     final types = {
       'TH': 'Theory',
       'PR': 'Practical',
@@ -48,25 +48,31 @@ class AddTimeSlot extends StatelessWidget {
                       fontFamily: 'NovaFlat',
                     ),
                   ),
-                  Select<String>(
+                  Container(
                     constraints: const BoxConstraints(minWidth: 120),
-                    popupConstraints: const BoxConstraints(minWidth: 120),
-                    onChanged: (type) {
-                      context.read<TimeSlotCubit>().changeType(type!);
-                    },
-                    itemBuilder: (context, item) {
-                      return Text(
-                        item,
-                        style: TextStyles.labelLarge.copyWith(
-                          fontFamily: 'NovaFlat',
-                        ),
-                      );
-                    },
-                    value: types[type],
-                    children: [
-                      ...types.entries.map((e) =>
-                          SelectItemButton(value: e.key, child: Text(e.value))),
-                    ],
+                    child: mat.DropdownButton<String>(
+                      value: type,
+                      style: TextStyles.labelLarge.copyWith(
+                        fontFamily: 'NovaFlat',
+                        color: Colors.white,
+                      ),
+                      dropdownColor: const Color(0xff1a1a1a),
+                      underline: Container(
+                        height: 1,
+                        color: Colors.white.withAlpha(140),
+                      ),
+                      items: types.entries.map((e) {
+                        return mat.DropdownMenuItem<String>(
+                          value: e.key,
+                          child: Text(e.value),
+                        );
+                      }).toList(),
+                      onChanged: (newType) {
+                        if (newType != null) {
+                          context.read<TimeSlotCubit>().changeType(newType);
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -94,6 +100,11 @@ class SlotForm extends StatefulWidget {
 class _SlotFormState extends State<SlotForm> {
   int index = 0;
   TimeOfDay duration = const TimeOfDay(hour: 00, minute: 00);
+  String durationText = '';
+  final _timeFormatter = MaskTextInputFormatter(
+    mask: '##:##',
+    filter: {"#": RegExp(r'[0-9]')},
+  );
 
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _facultyController = TextEditingController();
@@ -392,14 +403,52 @@ class _SlotFormState extends State<SlotForm> {
         ),
         Expanded(
           flex: 4,
-          child: TimePicker(
-            value: duration,
-            mode: PromptMode.dialog,
-            use24HourFormat: true,
-            dialogTitle: const Text('Select Duration'),
-            onChanged: (value) {
-              duration = value ?? duration;
-            },
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF171717),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: mat.Colors.grey.shade900),
+            ),
+            child: mat.TextField(
+              controller: TextEditingController(text: durationText),
+              inputFormatters: [_timeFormatter],
+              style: TextStyles.labelLarge.copyWith(
+                fontFamily: 'NovaFlat',
+                color: Colors.white,
+              ),
+              decoration: mat.InputDecoration(
+                border: mat.InputBorder.none,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                hintText: 'HH:mm',
+                hintStyle: TextStyle(
+                  color: mat.Colors.grey.shade500,
+                  fontFamily: 'NovaFlat',
+                ),
+              ),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                if (_timeFormatter.isFill()) {
+                  final parts = value.split(':');
+                  if (parts.length == 2) {
+                    final hours = int.tryParse(parts[0]);
+                    final minutes = int.tryParse(parts[1]);
+                    if (hours != null &&
+                        minutes != null &&
+                        hours >= 0 &&
+                        hours < 24 &&
+                        minutes >= 0 &&
+                        minutes < 60) {
+                      setState(() {
+                        durationText =
+                            '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+                        duration = TimeOfDay(hour: hours, minute: minutes);
+                      });
+                    }
+                  }
+                }
+              },
+            ),
           ),
         ),
       ],

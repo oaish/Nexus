@@ -29,10 +29,20 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
         department: department,
         year: year,
         division: division,
-        schedule: {},
+        schedule: const {
+          'Monday': [],
+          'Tuesday': [],
+          'Wednesday': [],
+          'Thursday': [],
+          'Friday': [],
+          'Saturday': [],
+          'Sunday': [],
+        },
         lastModified: DateTime.now(),
         isPublic: false,
       );
+
+      _timeTableManagerCubit.saveTimeTable(newTimeTable);
 
       emit(TimeTableEditorLoaded(
         timetable: newTimeTable,
@@ -182,6 +192,7 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
           lastModified: DateTime.now(),
         );
 
+        _timeTableManagerCubit.saveTimeTable(updatedTimeTable);
         // Emit new state
         emit(currentState.copyWith(timetable: updatedTimeTable));
       }

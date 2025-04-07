@@ -1,4 +1,4 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as mat;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexus/core/constants/app_styles.dart';
 import 'package:nexus/presentation/cubits/week_cubit.dart';
@@ -14,8 +14,8 @@ class TimeTableEditorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        child: Column(
+      child: mat.Scaffold(
+        body: Column(
           children: [
             // TODO: NexusBackButton
             Padding(
@@ -30,43 +30,44 @@ class TimeTableEditorScreen extends StatelessWidget {
             ),
 
             EditorSlotTable(),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: PrimaryButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      final String weekDay = context.read<WeekCubit>().state.selectedDay;
-                      return AlertDialog(
-                        title: Text.rich(
-                          TextSpan(
-                            text: 'Add Timeslot for ',
-                            style: TextStyles.titleLarge.copyWith(fontFamily: 'NovaFlat'),
-                            children: [
-                              TextSpan(
-                                text: weekDay,
-                                style: TextStyles.titleLarge.copyWith(
-                                  fontFamily: 'NovaFlat',
-                                  color: const Color(0xff80d4da), // Custom color for the day
-                                ),
-                              ),
-                            ],
+          ],
+        ),
+        floatingActionButton: mat.FloatingActionButton(
+          backgroundColor: const Color(0xff7ed1d7),
+          foregroundColor: const Color(0xff1a1a1a),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                final String weekDay =
+                    context.read<WeekCubit>().state.selectedDay;
+                return AlertDialog(
+                  title: Text.rich(
+                    TextSpan(
+                      text: 'Add Timeslot for ',
+                      style: TextStyles.titleLarge
+                          .copyWith(fontFamily: 'NovaFlat'),
+                      children: [
+                        TextSpan(
+                          text: weekDay,
+                          style: TextStyles.titleLarge.copyWith(
+                            fontFamily: 'NovaFlat',
+                            color: const Color(
+                                0xff80d4da), // Custom color for the day
                           ),
                         ),
-                        content: AddTimeSlot(weekDay),
-                      );
-                    },
-                  );
-                },
-                child: const Icon(
-                  Icons.add,
-                  size: 32,
-                ),
-              ),
-            )
-          ],
+                      ],
+                    ),
+                  ),
+                  content: AddTimeSlot(weekDay),
+                );
+              },
+            );
+          },
+          child: const Icon(
+            Icons.add,
+            size: 32,
+          ),
         ),
       ),
     );

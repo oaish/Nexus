@@ -21,11 +21,13 @@ class EditorSlotTable extends StatelessWidget {
     return Expanded(
       child: BlocBuilder<TimeTableEditorCubit, TimeTableEditorState>(
         builder: (context, state) {
-          final current = context.read<TimeTableEditorCubit>().state as TimeTableEditorLoaded;
+          final current = context.read<TimeTableEditorCubit>().state
+              as TimeTableEditorLoaded;
           final schedule = current.timetable.schedule;
           return PageView(
             controller: _pageController,
-            physics: const BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
+            physics: const BouncingScrollPhysics(
+                decelerationRate: ScrollDecelerationRate.fast),
             onPageChanged: (int pageIndex) {
               // if (!isProgrammaticChange) {
               if (pageIndex > previousPageIndex) {
@@ -40,7 +42,9 @@ class EditorSlotTable extends StatelessWidget {
               final int length = schedule[weekDays[weekIndex]]?.length ?? 0;
               return ReorderableListView(
                 onReorder: (oldIndex, newIndex) {
-                  context.read<TimeTableEditorCubit>().reorderSlot(weekDays[weekIndex], oldIndex, newIndex);
+                  context
+                      .read<TimeTableEditorCubit>()
+                      .reorderSlot(weekDays[weekIndex], oldIndex, newIndex);
                 },
                 children: List.generate(length == 0 ? 1 : length, (dayIndex) {
                   return BlocBuilder<BatchCubit, BatchState>(
@@ -51,11 +55,15 @@ class EditorSlotTable extends StatelessWidget {
                         return EditorNoSlotTile(weekDays[weekIndex]);
                       }
 
-                      return ReorderableTimeSlotTile(
-                        slot: schedule[weekDays[weekIndex]]![dayIndex],
-                        index: dayIndex,
-                        batchIndex: current.batchIndex,
-                        groupIndex: current.groupIndex,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 0.0),
+                        child: ReorderableTimeSlotTile(
+                          slot: schedule[weekDays[weekIndex]]![dayIndex],
+                          index: dayIndex,
+                          batchIndex: current.batchIndex,
+                          groupIndex: current.groupIndex,
+                        ),
                       );
                     },
                   );

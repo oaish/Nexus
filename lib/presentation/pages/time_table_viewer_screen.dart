@@ -1,11 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 import 'package:nexus/core/constants/app_data.dart' as app_data;
 import 'package:nexus/core/widgets/nexus_back_button.dart';
+import 'package:nexus/domain/entities/sub_slot.dart';
+import 'package:nexus/domain/entities/timetable_slot.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
@@ -19,6 +19,35 @@ class TimeTableViewerScreen extends StatelessWidget {
 
   late final PageController _pageController;
   bool isProgrammaticChange = false;
+
+  List<TimeTableSlot> _convertToTimeTableSlots(List<dynamic> slots) {
+    return slots.map((slot) {
+      final Map<String, dynamic> slotMap = slot as Map<String, dynamic>;
+      final List<dynamic>? subSlotsList = slotMap['subSlots'] as List<dynamic>?;
+
+      final List<SubSlot>? subSlots = subSlotsList?.map((subSlot) {
+        final Map<String, dynamic> subSlotMap = subSlot as Map<String, dynamic>;
+        return SubSlot(
+          subject: subSlotMap['subject'] as String?,
+          teacher: subSlotMap['teacher'] as String?,
+          location: subSlotMap['location'] as String?,
+          batch: subSlotMap['batch'] as String?,
+          group: subSlotMap['group'] as String?,
+        );
+      }).toList();
+
+      return TimeTableSlot(
+        sTime: slotMap['sTime'] as String,
+        eTime: slotMap['eTime'] as String,
+        subject: slotMap['subject'] as String?,
+        teacher: slotMap['teacher'] as String?,
+        location: slotMap['location'] as String?,
+        activity: slotMap['activity'] as String?,
+        type: slotMap['type'] as String?,
+        subSlots: subSlots,
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +195,7 @@ class TimeTableViewerScreen extends StatelessWidget {
             },
             children: List.generate(app_data.weekDays.length, (weekIndex) {
               final weekDay = app_data.weekDays[weekIndex];
-              final slots = schedule[weekDay] ?? [];
+              final slots = _convertToTimeTableSlots(schedule[weekDay] ?? []);
               return Padding(
                 padding: const EdgeInsets.all(0),
                 child: ListView.builder(
@@ -278,7 +307,7 @@ class TimeTableViewerScreen extends StatelessWidget {
                         color: Colors.redAccent,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const HugeIcon(
+                      child: HugeIcon(
                         icon: HugeIcons.strokeRoundedCancel01,
                         color: Colors.black,
                         size: 24.0,

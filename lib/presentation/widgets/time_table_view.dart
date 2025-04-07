@@ -4,11 +4,41 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/core/constants/app_media.dart';
 import 'package:nexus/core/constants/app_styles.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:nexus/domain/entities/sub_slot.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_view_state.dart';
 
 class TimeTableView extends StatelessWidget {
   const TimeTableView({super.key});
+
+  List<TimeTableSlot> _convertToTimeTableSlots(List<dynamic> slots) {
+    return slots.map((slot) {
+      final Map<String, dynamic> slotMap = slot as Map<String, dynamic>;
+      final List<dynamic>? subSlotsList = slotMap['subSlots'] as List<dynamic>?;
+
+      final List<SubSlot>? subSlots = subSlotsList?.map((subSlot) {
+        final Map<String, dynamic> subSlotMap = subSlot as Map<String, dynamic>;
+        return SubSlot(
+          subject: subSlotMap['subject'] as String?,
+          teacher: subSlotMap['teacher'] as String?,
+          location: subSlotMap['location'] as String?,
+          batch: subSlotMap['batch'] as String?,
+          group: subSlotMap['group'] as String?,
+        );
+      }).toList();
+
+      return TimeTableSlot(
+        sTime: slotMap['sTime'] as String,
+        eTime: slotMap['eTime'] as String,
+        subject: slotMap['subject'] as String?,
+        teacher: slotMap['teacher'] as String?,
+        location: slotMap['location'] as String?,
+        activity: slotMap['activity'] as String?,
+        type: slotMap['type'] as String?,
+        subSlots: subSlots,
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +46,23 @@ class TimeTableView extends StatelessWidget {
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
         return switch (state) {
-          TimeTableViewInitial() =>
-            const Center(child: CircularProgressIndicator()),
-          TimeTableViewLoading() =>
-            const Center(child: CircularProgressIndicator()),
-          TimeTableViewError() => Center(child: Text(state.message)),
+          TimeTableViewInitial() => const TimeTableContainer(
+              mainContent: Center(child: CircularProgressIndicator()),
+              bottomContent: SizedBox(),
+            ),
+          TimeTableViewLoading() => const TimeTableContainer(
+              mainContent: Center(child: CircularProgressIndicator()),
+              bottomContent: SizedBox(),
+            ),
+          TimeTableViewError() => TimeTableContainer(
+              mainContent: Center(
+                  child: Text(state.message, style: TextStyles.titleLarge)),
+              bottomContent: const SizedBox(),
+            ),
           TimeTableViewLoaded() => _TimeTableContent(
-              slots:
-                  state.timetable.schedule[weekDays[state.currentDayIndex]] ??
-                      [],
+              slots: _convertToTimeTableSlots(
+                state.timetable.schedule[weekDays[state.currentDayIndex]] ?? [],
+              ),
               currentIndex: state.currentIndex,
               batchIndex: state.batchIndex,
               groupIndex: state.groupIndex,
@@ -233,7 +271,7 @@ class _TimeTableContent extends StatelessWidget {
                   width: 24.0,
                   height: 24.0,
                   color: Colors.deepPurple[100],
-                  child: const HugeIcon(
+                  child: HugeIcon(
                     icon: HugeIcons.strokeRoundedTime03,
                     color: Colors.black,
                     size: 16.0,
@@ -247,7 +285,7 @@ class _TimeTableContent extends StatelessWidget {
                   child: Text(
                     '${slot.sTime} - ${slot.eTime}',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'Orbitron',
                       color: Colors.white60,
                       fontWeight: FontWeight.w600,

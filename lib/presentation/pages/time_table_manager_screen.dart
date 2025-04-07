@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/core/widgets/nexus_back_button.dart';
 import 'package:nexus/domain/entities/timetable.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
@@ -18,9 +19,9 @@ class TimeTableManagerScreen extends StatefulWidget {
 
 class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
   bool isPublic = true;
-  bool isExpanded = true;
-  bool isSelectExpanded = true;
-  bool isLocalTimetables = true; // Toggle between local and cloud timetables
+  String expandedCard =
+      'select'; // Track which card is expanded: 'create', 'select', or 'none'
+  bool isLocalTimetables = true;
 
   final List<String> departments = [
     'COMPS',
@@ -49,698 +50,680 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            NexusBackButton(
-              isExtended: true,
-              extendedChild: Row(
-                spacing: 10,
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(7.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        'Timetable Manager',
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontFamily: 'Orbitron',
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onPrimary,
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              NexusBackButton(
+                isExtended: true,
+                extendedChild: Row(
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(7.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Timetable Manager',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'Orbitron',
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Currently Selected Timetable Card
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF222222),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Currently Selected',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontFamily: 'Orbitron',
+              // Currently Selected Timetable Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF222222),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Currently Selected',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontFamily: 'Orbitron',
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  BlocBuilder<TimeTableManagerCubit, TimeTableManagerState>(
-                    builder: (context, state) {
-                      if (state is TimeTableManagerLoaded &&
-                          state.currentTimeTable != null) {
-                        final timetable = state.currentTimeTable!;
+                    const SizedBox(height: 12),
+                    BlocBuilder<TimeTableManagerCubit, TimeTableManagerState>(
+                      builder: (context, state) {
+                        if (state is TimeTableManagerLoaded &&
+                            state.currentTimeTable != null) {
+                          final timetable = state.currentTimeTable!;
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context, '/time-table-viewer');
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A1A1A),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          timetable.name,
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontFamily: 'Orbitron',
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${timetable.department} - ${timetable.year} - ${timetable.division}',
+                                        style: const TextStyle(
+                                          color: Colors.white38,
+                                          fontSize: 12,
+                                          fontFamily: 'Orbitron',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
                         return Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: const Color(0xFF1A1A1A),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: const Center(
+                            child: Text(
+                              'No timetable selected',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 12,
+                                fontFamily: 'Orbitron',
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              // Spacing between cards
+              const SizedBox(height: 24),
+
+              // Create Timetable Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF222222),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with collapse button
+                    GestureDetector(
+                      onTap: () => setState(() => expandedCard =
+                          expandedCard == 'create' ? 'none' : 'create'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Create New Timetable',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: 'Orbitron',
+                            ),
+                          ),
+                          Icon(
+                            expandedCard == 'create'
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Collapsible content
+                    AnimatedCrossFade(
+                      firstChild: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Timetable Name Input
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: TextField(
+                              controller: _nameController,
+                              style: const TextStyle(
+                                fontFamily: 'Orbitron',
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Timetable Name',
+                                hintStyle: TextStyle(
+                                  color: Colors.white38,
+                                  fontFamily: 'Orbitron',
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Department Dropdown
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedDepartment,
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              dropdownColor: const Color(0xFF1A1A1A),
+                              style: const TextStyle(
+                                fontFamily: 'Orbitron',
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                              items: departments.map((String department) {
+                                return DropdownMenuItem<String>(
+                                  value: department,
+                                  child: Text(department),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => selectedDepartment = newValue);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Year Dropdown
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedYear,
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              dropdownColor: const Color(0xFF1A1A1A),
+                              style: const TextStyle(
+                                fontFamily: 'Orbitron',
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                              items: years.map((String year) {
+                                return DropdownMenuItem<String>(
+                                  value: year,
+                                  child: Text(year),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => selectedYear = newValue);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Division Dropdown
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedDivision,
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              dropdownColor: const Color(0xFF1A1A1A),
+                              style: const TextStyle(
+                                fontFamily: 'Orbitron',
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                              items: divisions.map((String division) {
+                                return DropdownMenuItem<String>(
+                                  value: division,
+                                  child: Text(division),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => selectedDivision = newValue);
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Public Switch
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      timetable.name,
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontFamily: 'Orbitron',
+                              Flexible(
+                                flex: 7,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Make Timetable Public',
+                                      style: TextStyle(
                                         fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                        fontFamily: 'Orbitron',
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                          context, '/time-table-editor');
-                                    },
-                                    icon: const Icon(
-                                      Icons.visibility,
-                                      color: Colors.white70,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${timetable.department} - ${timetable.year} - ${timetable.division}',
-                                style: const TextStyle(
-                                  color: Colors.white38,
-                                  fontSize: 12,
-                                  fontFamily: 'Orbitron',
+                              Flexible(
+                                flex: 3,
+                                child: shadcn.Switch(
+                                  value: isPublic,
+                                  onChanged: (value) =>
+                                      setState(() => isPublic = value),
                                 ),
                               ),
                             ],
                           ),
-                        );
-                      }
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1A1A1A),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'No timetable selected',
-                            style: TextStyle(
-                              color: Colors.white38,
-                              fontSize: 12,
-                              fontFamily: 'Orbitron',
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+                          const SizedBox(height: 24),
 
-            // Spacing between cards
-            const SizedBox(height: 24),
-
-            // Create Timetable Card
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF222222),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with collapse button
-                  GestureDetector(
-                    onTap: () => setState(() => isExpanded = !isExpanded),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Create New Timetable',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontFamily: 'Orbitron',
-                          ),
-                        ),
-                        Icon(
-                          isExpanded ? Icons.expand_less : Icons.expand_more,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Collapsible content
-                  AnimatedCrossFade(
-                    firstChild: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-
-                        // Timetable Name Input
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: TextField(
-                            controller: _nameController,
-                            style: const TextStyle(
-                              fontFamily: 'Orbitron',
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Timetable Name',
-                              hintStyle: TextStyle(
-                                color: Colors.white38,
-                                fontFamily: 'Orbitron',
+                          // Create Button
+                          GestureDetector(
+                            onTap: () => _handleCreateButton(context),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF7ED1D7),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Department Dropdown
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButton<String>(
-                            value: selectedDepartment,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            dropdownColor: const Color(0xFF1A1A1A),
-                            style: const TextStyle(
-                              fontFamily: 'Orbitron',
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                            items: departments.map((String department) {
-                              return DropdownMenuItem<String>(
-                                value: department,
-                                child: Text(department),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                setState(() => selectedDepartment = newValue);
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Year Dropdown
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButton<String>(
-                            value: selectedYear,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            dropdownColor: const Color(0xFF1A1A1A),
-                            style: const TextStyle(
-                              fontFamily: 'Orbitron',
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                            items: years.map((String year) {
-                              return DropdownMenuItem<String>(
-                                value: year,
-                                child: Text(year),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                setState(() => selectedYear = newValue);
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Division Dropdown
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButton<String>(
-                            value: selectedDivision,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            dropdownColor: const Color(0xFF1A1A1A),
-                            style: const TextStyle(
-                              fontFamily: 'Orbitron',
-                              fontSize: 16,
-                              color: Colors.white70,
-                            ),
-                            items: divisions.map((String division) {
-                              return DropdownMenuItem<String>(
-                                value: division,
-                                child: Text(division),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                setState(() => selectedDivision = newValue);
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Public Switch
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              flex: 7,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Make Timetable Public',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface,
-                                      fontFamily: 'Orbitron',
-                                    ),
+                              child: const Center(
+                                child: Text(
+                                  'Create Timetable',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Orbitron',
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                            Flexible(
-                              flex: 3,
-                              child: shadcn.Switch(
-                                value: isPublic,
-                                onChanged: (value) =>
-                                    setState(() => isPublic = value),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+                          ),
+                        ],
+                      ),
+                      secondChild: const SizedBox(),
+                      crossFadeState: expandedCard == 'create'
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: const Duration(milliseconds: 300),
+                    ),
+                  ],
+                ),
+              ),
 
-                        // Create Button
-                        GestureDetector(
-                          onTap: () => _handleCreateButton(context),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF7ED1D7),
-                              borderRadius: BorderRadius.circular(8),
+              // Spacing between cards
+              const SizedBox(height: 24),
+
+              // Select Timetable Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF222222),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with collapse button
+                    GestureDetector(
+                      onTap: () => setState(() => expandedCard =
+                          expandedCard == 'select' ? 'none' : 'select'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Select Timetable',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: 'Orbitron',
                             ),
-                            child: const Center(
-                              child: Text(
-                                'Create Timetable',
+                          ),
+                          Icon(
+                            expandedCard == 'select'
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Collapsible content
+                    AnimatedCrossFade(
+                      firstChild: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Toggle between Local and Cloud Timetables
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                isLocalTimetables
+                                    ? 'Local Timetables'
+                                    : 'Cloud Timetables',
                                 style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                   fontFamily: 'Orbitron',
                                 ),
                               ),
-                            ),
+                              shadcn.Switch(
+                                value: isLocalTimetables,
+                                onChanged: (value) =>
+                                    setState(() => isLocalTimetables = value),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    secondChild: const SizedBox(),
-                    crossFadeState: isExpanded
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                ],
-              ),
-            ),
+                          const SizedBox(height: 12),
 
-            // Spacing between cards
-            const SizedBox(height: 24),
-
-            // Select Timetable Card
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFF222222),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with collapse button
-                  GestureDetector(
-                    onTap: () =>
-                        setState(() => isSelectExpanded = !isSelectExpanded),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Select Timetable',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontFamily: 'Orbitron',
+                          // Filters
+                          Row(
+                            children: [
+                              // Department Filter
+                              Expanded(
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1A1A1A),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedDepartment,
+                                    isExpanded: true,
+                                    underline: const SizedBox(),
+                                    dropdownColor: const Color(0xFF1A1A1A),
+                                    style: const TextStyle(
+                                      fontFamily: 'Orbitron',
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                    ),
+                                    items: departments.map((String department) {
+                                      return DropdownMenuItem<String>(
+                                        value: department,
+                                        child: Text(department),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(() =>
+                                            selectedDepartment = newValue);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Year Filter
+                              Expanded(
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1A1A1A),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedYear,
+                                    isExpanded: true,
+                                    underline: const SizedBox(),
+                                    dropdownColor: const Color(0xFF1A1A1A),
+                                    style: const TextStyle(
+                                      fontFamily: 'Orbitron',
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                    ),
+                                    items: years.map((String year) {
+                                      return DropdownMenuItem<String>(
+                                        value: year,
+                                        child: Text(year),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(() => selectedYear = newValue);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Division Filter
+                              Expanded(
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1A1A1A),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedDivision,
+                                    isExpanded: true,
+                                    underline: const SizedBox(),
+                                    dropdownColor: const Color(0xFF1A1A1A),
+                                    style: const TextStyle(
+                                      fontFamily: 'Orbitron',
+                                      fontSize: 12,
+                                      color: Colors.white70,
+                                    ),
+                                    items: divisions.map((String division) {
+                                      return DropdownMenuItem<String>(
+                                        value: division,
+                                        child: Text(division),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(
+                                            () => selectedDivision = newValue);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Icon(
-                          isSelectExpanded
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ],
-                    ),
-                  ),
+                          const SizedBox(height: 16),
 
-                  // Collapsible content
-                  AnimatedCrossFade(
-                    firstChild: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-
-                        // Toggle between Local and Cloud Timetables
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              isLocalTimetables
-                                  ? 'Local Timetables'
-                                  : 'Cloud Timetables',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                fontFamily: 'Orbitron',
-                              ),
-                            ),
-                            shadcn.Switch(
-                              value: isLocalTimetables,
-                              onChanged: (value) =>
-                                  setState(() => isLocalTimetables = value),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Filters
-                        Row(
-                          children: [
-                            // Department Filter
-                            Expanded(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1A1A1A),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectedDepartment,
-                                  isExpanded: true,
-                                  underline: const SizedBox(),
-                                  dropdownColor: const Color(0xFF1A1A1A),
-                                  style: const TextStyle(
-                                    fontFamily: 'Orbitron',
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                  items: departments.map((String department) {
-                                    return DropdownMenuItem<String>(
-                                      value: department,
-                                      child: Text(department),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(
-                                          () => selectedDepartment = newValue);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // Year Filter
-                            Expanded(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1A1A1A),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectedYear,
-                                  isExpanded: true,
-                                  underline: const SizedBox(),
-                                  dropdownColor: const Color(0xFF1A1A1A),
-                                  style: const TextStyle(
-                                    fontFamily: 'Orbitron',
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                  items: years.map((String year) {
-                                    return DropdownMenuItem<String>(
-                                      value: year,
-                                      child: Text(year),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(() => selectedYear = newValue);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // Division Filter
-                            Expanded(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1A1A1A),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: DropdownButton<String>(
-                                  value: selectedDivision,
-                                  isExpanded: true,
-                                  underline: const SizedBox(),
-                                  dropdownColor: const Color(0xFF1A1A1A),
-                                  style: const TextStyle(
-                                    fontFamily: 'Orbitron',
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                  items: divisions.map((String division) {
-                                    return DropdownMenuItem<String>(
-                                      value: division,
-                                      child: Text(division),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(
-                                          () => selectedDivision = newValue);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Timetables List
-                        BlocBuilder<TimeTableManagerCubit,
-                            TimeTableManagerState>(
-                          builder: (context, state) {
-                            if (state is TimeTableManagerLoaded) {
-                              final filteredTimetables =
-                                  getFilteredTimetables(state.timetables);
-                              return Column(
-                                children: filteredTimetables
-                                    .map((timetable) => Container(
-                                          margin:
-                                              const EdgeInsets.only(bottom: 8),
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF1A1A1A),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
-                                                      timetable.name,
-                                                      style: const TextStyle(
-                                                        color: Colors.white70,
-                                                        fontFamily: 'Orbitron',
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
+                          // Timetables List
+                          BlocBuilder<TimeTableManagerCubit,
+                              TimeTableManagerState>(
+                            builder: (context, state) {
+                              if (state is TimeTableManagerLoaded) {
+                                final filteredTimetables =
+                                    getFilteredTimetables(state.timetables);
+                                return Column(
+                                  children: filteredTimetables.map((timetable) {
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1A1A1A),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  timetable.name,
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontFamily: 'Orbitron',
+                                                    fontSize: 16,
                                                   ),
-                                                  if (!isLocalTimetables)
-                                                    IconButton(
-                                                      onPressed: () {
-                                                        // TODO: Implement download from cloud
-                                                        context
-                                                            .read<
-                                                                TimeTableManagerCubit>()
-                                                            .saveTimeTable(
-                                                                timetable);
-                                                      },
-                                                      icon: const Icon(
-                                                        Icons.download,
-                                                        color: Colors.white70,
-                                                        size: 20,
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'Created by: ${timetable.userId}',
-                                                style: const TextStyle(
-                                                  color: Colors.white38,
-                                                  fontSize: 12,
-                                                  fontFamily: 'Orbitron',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
-                                              ),
-                                              Text(
-                                                'Last modified: ${timetable.lastModified.toString().split('.')[0]}',
-                                                style: const TextStyle(
-                                                  color: Colors.white38,
-                                                  fontSize: 12,
-                                                  fontFamily: 'Orbitron',
+                                                Text(
+                                                  '${timetable.department} - ${timetable.year} - ${timetable.division}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white54,
+                                                    fontFamily: 'Orbitron',
+                                                    fontSize: 14,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children: [
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                              TimeTableEditorCubit>()
-                                                          .editTimeTable(
-                                                            id: timetable.id,
-                                                            name:
-                                                                timetable.name,
-                                                            userId: timetable
-                                                                .userId,
-                                                            department:
-                                                                timetable
-                                                                    .department,
-                                                            year:
-                                                                timetable.year,
-                                                            division: timetable
-                                                                .division,
-                                                            schedule: timetable
-                                                                .schedule,
-                                                          );
-                                                      Navigator.pushNamed(
-                                                          context,
-                                                          '/time-table-editor');
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.edit,
-                                                      color: Colors.white70,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () {
-                                                      context
-                                                          .read<
-                                                              TimeTableManagerCubit>()
-                                                          .deleteTimeTable(
-                                                              timetable.id);
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.delete,
-                                                      color: Colors.redAccent,
-                                                      size: 20,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ))
-                                    .toList(),
-                              );
-                            }
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          },
-                        ),
-                      ],
+                                          if (!isLocalTimetables)
+                                            IconButton(
+                                              onPressed: () {
+                                                context
+                                                    .read<
+                                                        TimeTableManagerCubit>()
+                                                    .saveTimeTable(timetable);
+                                              },
+                                              icon: const Icon(
+                                                Icons.download,
+                                                color: Colors.white70,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          IconButton(
+                                            onPressed: () {
+                                              context
+                                                  .read<TimeTableEditorCubit>()
+                                                  .editTimeTable(
+                                                    id: timetable.id,
+                                                    name: timetable.name,
+                                                    userId: timetable.userId,
+                                                    department:
+                                                        timetable.department,
+                                                    year: timetable.year,
+                                                    division:
+                                                        timetable.division,
+                                                    schedule:
+                                                        timetable.schedule,
+                                                  );
+                                              Navigator.pushNamed(context,
+                                                  '/time-table-editor');
+                                            },
+                                            icon: HugeIcon(
+                                              icon:
+                                                  HugeIcons.strokeRoundedPen01,
+                                              size: 24.0,
+                                              color: const Color(0xffffffff),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              context
+                                                  .read<TimeTableManagerCubit>()
+                                                  .deleteTimeTable(
+                                                      timetable.id);
+                                            },
+                                            icon: HugeIcon(
+                                              icon: HugeIcons
+                                                  .strokeRoundedDelete02,
+                                              size: 24.0,
+                                              color: const Color(0xFFd0021b),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              }
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            },
+                          ),
+                        ],
+                      ),
+                      secondChild: const SizedBox(),
+                      crossFadeState: expandedCard == 'select'
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: const Duration(milliseconds: 300),
                     ),
-                    secondChild: const SizedBox(),
-                    crossFadeState: isSelectExpanded
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    duration: const Duration(milliseconds: 300),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -25,7 +25,7 @@ class SectionHeader extends StatelessWidget {
           visible: viewAllButtonEnabled,
           child: GestureDetector(
             onTap: onTap,
-            child: const HugeIcon(
+            child: HugeIcon(
               icon: HugeIcons.strokeRoundedSquareArrowRight01,
               color: Colors.white70,
               size: 24.0,

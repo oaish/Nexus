@@ -148,7 +148,7 @@ class EditorNexusBackBtn extends StatelessWidget {
                         color: Colors.redAccent,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const HugeIcon(
+                      child: HugeIcon(
                         icon: HugeIcons.strokeRoundedCancel01,
                         color: Colors.black,
                         size: 24.0,

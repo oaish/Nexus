@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexus/core/constants/app_media.dart';
 import 'package:nexus/presentation/cubits/auth_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 
 class SettingsScreen extends StatefulWidget {
@@ -14,14 +16,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String selectedBatch = 'A'; // Default value
   final Map<String, int> batchValues = {'A': 0, 'B': 1, 'C': 2};
-
-  // Add timetable state
-  String selectedTimetable = "COMPSB - SE - CR-4 (Shared)";
-  final List<String> timetables = [
-    "COMPSB - SE - CR-4 (Shared)",
-    "COMPSB - SE - CR-3 (Shared)",
-    "COMPSB - SE - CR-2 (Shared)",
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -123,72 +117,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                shadcn.Select<String>(
-                  value: selectedTimetable,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedTimetable = value;
-                      });
-                      print('Selected Timetable: $value');
-                    }
-                  },
-                  constraints: const BoxConstraints(
-                    minWidth: double.infinity,
-                    minHeight: 50,
-                  ),
-                  itemBuilder: (context, item) {
-                    return Text(
-                      item,
-                      style: const TextStyle(
-                        fontFamily: 'Orbitron',
-                        fontSize: 16,
-                      ),
-                    );
-                  },
-                  children: [
-                    ...timetables.map(
-                      (timetable) => shadcn.SelectItemButton(
-                        value: timetable,
-                        child: Text(
-                          timetable,
-                          style: const TextStyle(
-                            fontFamily: 'Orbitron',
+                BlocBuilder<TimeTableManagerCubit, TimeTableManagerState>(
+                  builder: (context, state) {
+                    if (state is TimeTableManagerLoaded) {
+                      final timetables = state.timetables;
+                      final currentTimetable = state.currentTimeTable;
+
+                      if (timetables.isEmpty) {
+                        return Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[800],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'No Timetables Available',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[300],
+                                      fontFamily: 'Orbitron',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Create a new timetable to get started',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[400],
+                                      fontFamily: 'Orbitron',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, '/time-table-manager');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Create Timetable",
+                                  style: TextStyle(
+                                    color: colorScheme.onPrimary,
+                                    fontSize: 16,
+                                    fontFamily: 'Orbitron',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        children: [
+                          shadcn.Select<String>(
+                            value: currentTimetable?.id ?? '',
+                            onChanged: (value) {
+                              if (value != null && value.isNotEmpty) {
+                                final selectedTimetable = timetables.firstWhere(
+                                  (t) => t.id == value,
+                                  orElse: () => timetables.first,
+                                );
+                                context
+                                    .read<TimeTableManagerCubit>()
+                                    .setCurrentTimeTable(selectedTimetable);
+                              }
+                            },
+                            constraints: const BoxConstraints(
+                              minWidth: double.infinity,
+                              minHeight: 50,
+                            ),
+                            itemBuilder: (context, item) {
+                              final timetable = timetables.firstWhere(
+                                (t) => t.id == item,
+                                orElse: () => timetables.first,
+                              );
+                              return Text(
+                                timetable.name,
+                                style: const TextStyle(
+                                  fontFamily: 'Orbitron',
+                                  fontSize: 16,
+                                ),
+                              );
+                            },
+                            children: [
+                              ...timetables.map(
+                                (timetable) => shadcn.SelectItemButton(
+                                  value: timetable.id,
+                                  child: Text(
+                                    timetable.name,
+                                    style: const TextStyle(
+                                      fontFamily: 'Orbitron',
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/time-table-viewer',
-                        arguments: selectedTimetable,
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  '/time-table-viewer',
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                "View Timetable",
+                                style: TextStyle(
+                                  color: colorScheme.onPrimary,
+                                  fontSize: 16,
+                                  fontFamily: 'Orbitron',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      "View Timetable",
-                      style: TextStyle(
-                        color: colorScheme.onPrimary,
-                        fontSize: 16,
-                        fontFamily: 'Orbitron',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  },
                 ),
               ],
             ),
@@ -246,7 +326,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               selectedBatch = value;
                             });
                             final batchNumber = batchValues[value];
-                            print('Selected Batch: $value (Value: $batchNumber)');
+                            print(
+                                'Selected Batch: $value (Value: $batchNumber)');
                           }
                         },
                         constraints: const BoxConstraints(minWidth: 80),

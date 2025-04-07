@@ -281,7 +281,7 @@ class NoSlotTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Slot Icon
-            const SizedBox(
+            SizedBox(
               width: 24.0,
               height: 24.0,
               child: HugeIcon(

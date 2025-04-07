@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:nexus/presentation/cubits/batch_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 
 class ReorderableTimeSlotTile extends StatelessWidget {
   const ReorderableTimeSlotTile({
@@ -74,7 +77,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
           // Drag Handle
           Container(
             margin: const EdgeInsets.only(right: 8.0),
-            child: const HugeIcon(
+            child: HugeIcon(
               icon: HugeIcons.strokeRoundedDragDropVertical,
               color: Colors.white30,
               size: 24.0,
@@ -130,6 +133,17 @@ class ReorderableTimeSlotTile extends StatelessWidget {
             _slotLabel(
               HugeIcons.strokeRoundedLocation01,
               subSlot['location'] ?? '',
+            ),
+            GestureDetector(
+              onTap: () {
+                if (isPractical) {
+                  context.read<BatchCubit>().circleBatch();
+                } else {
+                  context.read<BatchCubit>().circleGroup();
+                }
+              },
+              child: _slotLabel(HugeIcons.strokeRoundedUserMultiple,
+                  isPractical ? subSlot['batch'] : subSlot['group']),
             ),
           ],
         )
