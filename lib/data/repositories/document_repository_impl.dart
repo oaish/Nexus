@@ -13,7 +13,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
 
   Future<void> initialize() async {
     final appDir = await getApplicationDocumentsDirectory();
-    _documentsDir = Directory('${appDir.path}/documents');
+    _documentsDir = Directory(path.join(appDir.path, 'documents'));
 
     if (!await _documentsDir.exists()) {
       await _documentsDir.create(recursive: true);
@@ -63,7 +63,9 @@ class DocumentRepositoryImpl implements DocumentRepository {
   @override
   Future<void> deleteDocument(String id) async {
     final documents = await getAllDocuments();
+    print('All documents: ${documents}');
     final document = documents.firstWhere((doc) => doc.id == id);
+    print('Document to delete: ${document}');
 
     // Delete the file
     final file = File(document.filePath);
