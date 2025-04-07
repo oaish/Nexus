@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 
-import '../../../core/theme/app_theme.dart';
-import '../../cubits/auth_cubit.dart';
-import '../../widgets/auth/auth_form.dart';
+import '../../core/theme/app_theme.dart';
+import '../cubits/auth_cubit.dart';
+import '../widgets/auth/auth_form.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);

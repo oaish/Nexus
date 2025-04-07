@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               colorScheme: const ColorScheme(
                 brightness: Brightness.dark,
-                background: Color(0xff020817),
+                background: Color(0xff1a1a1a),
                 foreground: Color(0xfff2f2f2),
                 card: Color(0xff1c1917),
                 cardForeground: Color(0xfff2f2f2),

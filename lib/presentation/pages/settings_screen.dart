@@ -48,8 +48,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 50,
+                  height: 50,
                   decoration: BoxDecoration(
                     color: Colors.deepPurple,
                     borderRadius: BorderRadius.circular(8),
@@ -57,7 +57,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Icon(
                     Icons.person_outline,
                     color: colorScheme.onSurfaceVariant,
-                    size: 24,
+                    size: 32,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -246,8 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               selectedBatch = value;
                             });
                             final batchNumber = batchValues[value];
-                            print(
-                                'Selected Batch: $value (Value: $batchNumber)');
+                            print('Selected Batch: $value (Value: $batchNumber)');
                           }
                         },
                         constraints: const BoxConstraints(minWidth: 80),
