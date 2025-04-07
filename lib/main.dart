@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nexus/app.dart';
 import 'package:nexus/core/config/supabase_config.dart';
+import 'package:nexus/core/constants/app_data.dart';
+import 'package:nexus/core/utils/timetable_utils.dart';
 import 'package:nexus/core/utils/window_resize_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -30,6 +32,5 @@ void main() async {
       snapWindow('Nexus');
     });
   }
-
   runApp(const MyApp());
 }

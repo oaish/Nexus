@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 var colorAccentArray = [
   Colors.deepPurpleAccent,
@@ -25,21 +26,52 @@ final List<Color> accentColors = [
   Colors.purpleAccent,
 ];
 
-const List<String> weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const List<String> weekDays = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday'
+];
 
 var defaultTimeTable = {
-  'id': 0,
-  'userId': '0x00',
+  'id': const Uuid().v4(),
+  'userId': const Uuid().v4(),
   'name': 'Default TT',
   'schedule': timeTable,
   'lastModified': DateTime.now().toIso8601String(),
+  'department': 'Comps',
+  'year': 'SE',
+  'division': 'B',
+  'isPublic': true,
 };
 
 var timeTable = {
   "Monday": [
-    {"sTime": "9:00", "eTime": "10:00", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
-    {"sTime": "10:00", "eTime": "11:00", "subject": "Python", "teacher": "Shainila", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
+    {
+      "sTime": "9:00",
+      "eTime": "10:00",
+      "subject": "AOA",
+      "teacher": "Dr. Amiya",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "10:00",
+      "eTime": "11:00",
+      "subject": "Python",
+      "teacher": "Shainila",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "11:00",
+      "eTime": "11:15",
+      "activity": "Short Break",
+      "type": "AC"
+    },
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -65,7 +97,12 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
+    {
+      "sTime": "13:15",
+      "eTime": "14:00",
+      "activity": "Lunch Break",
+      "type": "AC"
+    },
     {
       "sTime": "14:00",
       "eTime": "15:00",
@@ -82,7 +119,14 @@ var timeTable = {
       "location": "CR-4",
       "type": "TH"
     },
-    {"sTime": "16:00", "eTime": "17:00", "subject": "MP", "teacher": "Sejal", "location": "CR-4", "type": "TH"},
+    {
+      "sTime": "16:00",
+      "eTime": "17:00",
+      "subject": "MP",
+      "teacher": "Sejal",
+      "location": "CR-4",
+      "type": "TH"
+    },
   ],
   "Tuesday": [
     {
@@ -104,11 +148,42 @@ var timeTable = {
       ],
       "type": "TT"
     },
-    {"sTime": "10:00", "eTime": "11:00", "subject": "DBMS", "teacher": "Sana A.", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
-    {"sTime": "11:15", "eTime": "12:15", "subject": "MP", "teacher": "Sejal", "location": "CR-4", "type": "TH"},
-    {"sTime": "12:15", "eTime": "13:15", "subject": "Python", "teacher": "Shainila", "location": "CR-4", "type": "TH"},
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
+    {
+      "sTime": "10:00",
+      "eTime": "11:00",
+      "subject": "DBMS",
+      "teacher": "Sana A.",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "11:00",
+      "eTime": "11:15",
+      "activity": "Short Break",
+      "type": "AC"
+    },
+    {
+      "sTime": "11:15",
+      "eTime": "12:15",
+      "subject": "MP",
+      "teacher": "Sejal",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "12:15",
+      "eTime": "13:15",
+      "subject": "Python",
+      "teacher": "Shainila",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "13:15",
+      "eTime": "14:00",
+      "activity": "Lunch Break",
+      "type": "AC"
+    },
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -117,7 +192,13 @@ var timeTable = {
       "location": "CC-1, CC-2",
       "type": "MP"
     },
-    {"sTime": "16:00", "eTime": "17:00", "activity": "Remedial", "location": "SE-B", "type": "AC"},
+    {
+      "sTime": "16:00",
+      "eTime": "17:00",
+      "activity": "Remedial",
+      "location": "SE-B",
+      "type": "AC"
+    },
   ],
   "Wednesday": [
     {
@@ -145,10 +226,34 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
-    {"sTime": "11:15", "eTime": "12:15", "subject": "OS", "teacher": "Dipti", "location": "CR-4", "type": "TH"},
-    {"sTime": "12:15", "eTime": "13:15", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
+    {
+      "sTime": "11:00",
+      "eTime": "11:15",
+      "activity": "Short Break",
+      "type": "AC"
+    },
+    {
+      "sTime": "11:15",
+      "eTime": "12:15",
+      "subject": "OS",
+      "teacher": "Dipti",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "12:15",
+      "eTime": "13:15",
+      "subject": "AOA",
+      "teacher": "Dr. Amiya",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "13:15",
+      "eTime": "14:00",
+      "activity": "Lunch Break",
+      "type": "AC"
+    },
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -195,7 +300,14 @@ var timeTable = {
     }
   ],
   "Thursday": [
-    {"sTime": "9:00", "eTime": "10:00", "subject": "DBMS", "teacher": "Sana A.", "location": "CR-4", "type": "TH"},
+    {
+      "sTime": "9:00",
+      "eTime": "10:00",
+      "subject": "DBMS",
+      "teacher": "Sana A.",
+      "location": "CR-4",
+      "type": "TH"
+    },
     {
       "sTime": "10:00",
       "eTime": "11:00",
@@ -204,7 +316,12 @@ var timeTable = {
       "location": "CR-4",
       "type": "TH"
     },
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
+    {
+      "sTime": "11:00",
+      "eTime": "11:15",
+      "activity": "Short Break",
+      "type": "AC"
+    },
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -213,7 +330,12 @@ var timeTable = {
       "location": "CC",
       "type": "MP"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
+    {
+      "sTime": "13:15",
+      "eTime": "14:00",
+      "activity": "Lunch Break",
+      "type": "AC"
+    },
     {
       "sTime": "14:00",
       "eTime": "16:00",
@@ -248,9 +370,28 @@ var timeTable = {
     },
   ],
   "Friday": [
-    {"sTime": "9:00", "eTime": "10:00", "subject": "AOA", "teacher": "Dr. Amiya", "location": "CR-4", "type": "TH"},
-    {"sTime": "10:00", "eTime": "11:00", "subject": "MP", "teacher": "Sejal", "location": "CR-4", "type": "TH"},
-    {"sTime": "11:00", "eTime": "11:15", "activity": "Short Break", "type": "AC"},
+    {
+      "sTime": "9:00",
+      "eTime": "10:00",
+      "subject": "AOA",
+      "teacher": "Dr. Amiya",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "10:00",
+      "eTime": "11:00",
+      "subject": "MP",
+      "teacher": "Sejal",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "11:00",
+      "eTime": "11:15",
+      "activity": "Short Break",
+      "type": "AC"
+    },
     {
       "sTime": "11:15",
       "eTime": "13:15",
@@ -276,9 +417,28 @@ var timeTable = {
       ],
       "type": "PR"
     },
-    {"sTime": "13:15", "eTime": "14:00", "activity": "Lunch Break", "type": "AC"},
-    {"sTime": "14:00", "eTime": "15:00", "subject": "DBMS", "teacher": "Sana A.", "location": "CR-4", "type": "TH"},
-    {"sTime": "15:00", "eTime": "16:00", "subject": "OS", "teacher": "Dipti", "location": "CR-4", "type": "TH"},
+    {
+      "sTime": "13:15",
+      "eTime": "14:00",
+      "activity": "Lunch Break",
+      "type": "AC"
+    },
+    {
+      "sTime": "14:00",
+      "eTime": "15:00",
+      "subject": "DBMS",
+      "teacher": "Sana A.",
+      "location": "CR-4",
+      "type": "TH"
+    },
+    {
+      "sTime": "15:00",
+      "eTime": "16:00",
+      "subject": "OS",
+      "teacher": "Dipti",
+      "location": "CR-4",
+      "type": "TH"
+    },
     {
       "sTime": "16:00",
       "eTime": "17:00",
@@ -307,7 +467,13 @@ var timetableSuggestions = {
     "DBMS LAB",
     "Python LAB"
   ],
-  'Activity': ["Short Break", "Lunch Break", "Remedial", "Mentoring", "EM-IV TUT"],
+  'Activity': [
+    "Short Break",
+    "Lunch Break",
+    "Remedial",
+    "Mentoring",
+    "EM-IV TUT"
+  ],
   'Location': [
     'CC-1',
     'CC-2',

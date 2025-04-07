@@ -1,5 +1,0 @@
-// icon: HugeIcons.strokeRoundedAirport,
-// icon: HugeIcons.strokeRoundedTask01,
-// icon: HugeIcons.strokeRoundedScissor01,
-icon: HugeIcons
-    .strokeRoundedSourceCodeSquare,

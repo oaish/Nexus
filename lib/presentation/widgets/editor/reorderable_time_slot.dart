@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:nexus/core/constants/app_styles.dart';
 import 'package:nexus/presentation/cubits/batch_cubit.dart';
-import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
+import 'package:nexus/presentation/cubits/week_cubit.dart';
+import 'package:nexus/presentation/widgets/editor/add_time_slot.dart';
+import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 
 class ReorderableTimeSlotTile extends StatelessWidget {
   const ReorderableTimeSlotTile({
@@ -32,6 +36,147 @@ class ReorderableTimeSlotTile extends StatelessWidget {
     }
 
     return null;
+  }
+
+  void _showContextMenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero),
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu(
+      context: context,
+      position: position,
+      items: [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              HugeIcon(
+                  icon: HugeIcons.strokeRoundedEdit01,
+                  color: Colors.white70,
+                  size: 18),
+              const SizedBox(width: 8),
+              const Text('Edit',
+                  style:
+                      TextStyle(color: Colors.white70, fontFamily: 'Orbitron')),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete, color: Colors.redAccent, size: 18),
+              SizedBox(width: 8),
+              Text('Delete',
+                  style: TextStyle(
+                      color: Colors.redAccent, fontFamily: 'Orbitron')),
+            ],
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'edit') {
+        _editTimeSlot(context);
+      } else if (value == 'delete') {
+        _deleteTimeSlot(context);
+      }
+    });
+  }
+
+  void _editTimeSlot(BuildContext context) {
+    // Get the current day from the WeekCubit
+    final String weekDay = context.read<WeekCubit>().state.selectedDay;
+
+    // Show the edit dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return shadcn.AlertDialog(
+          title: Text.rich(
+            TextSpan(
+              text: 'Add Timeslot for ',
+              style: TextStyles.titleLarge.copyWith(fontFamily: 'NovaFlat'),
+              children: [
+                TextSpan(
+                  text: weekDay,
+                  style: TextStyles.titleLarge.copyWith(
+                    fontFamily: 'NovaFlat',
+                    color: const Color(0xff80d4da), // Custom color for the day
+                  ),
+                ),
+              ],
+            ),
+          ),
+          content: AddTimeSlot(weekDay),
+        );
+      },
+    );
+  }
+
+  void _deleteTimeSlot(BuildContext context) {
+    // Get the current day from the WeekCubit
+    final String weekDay = context.read<WeekCubit>().state.selectedDay;
+
+    // Show confirmation dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete Timeslot',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'NovaFlat',
+              fontSize: 18,
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to delete this timeslot?',
+            style: TextStyle(
+              color: Colors.white70,
+              fontFamily: 'NovaFlat',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontFamily: 'NovaFlat',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Delete the timeslot
+                context
+                    .read<TimeTableEditorCubit>()
+                    .deleteTimeSlot(weekDay, index);
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontFamily: 'NovaFlat',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -64,28 +209,31 @@ class ReorderableTimeSlotTile extends StatelessWidget {
         break;
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: const Color(0xff1a1a1a),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white10, width: 1),
-      ),
-      child: Row(
-        children: [
-          // Drag Handle
-          Container(
-            margin: const EdgeInsets.only(right: 8.0),
-            child: HugeIcon(
-              icon: HugeIcons.strokeRoundedDragDropVertical,
-              color: Colors.white30,
-              size: 24.0,
+    return GestureDetector(
+      onLongPress: () => _showContextMenu(context),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: const Color(0xff1a1a1a),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white10, width: 1),
+        ),
+        child: Row(
+          children: [
+            // Drag Handle
+            Container(
+              margin: const EdgeInsets.only(right: 8.0),
+              child: HugeIcon(
+                icon: HugeIcons.strokeRoundedDragDropVertical,
+                color: Colors.white30,
+                size: 24.0,
+              ),
             ),
-          ),
-          // Slot Content
-          Expanded(child: dynamicSlot),
-        ],
+            // Slot Content
+            Expanded(child: dynamicSlot),
+          ],
+        ),
       ),
     );
   }

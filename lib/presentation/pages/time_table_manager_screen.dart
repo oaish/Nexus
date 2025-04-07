@@ -1,7 +1,10 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:nexus/core/constants/app_styles.dart';
+import 'package:nexus/core/utils/timetable_utils.dart';
 import 'package:nexus/core/widgets/nexus_back_button.dart';
 import 'package:nexus/domain/entities/timetable.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
@@ -9,6 +12,10 @@ import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart' as shadcn;
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 class TimeTableManagerScreen extends StatefulWidget {
   const TimeTableManagerScreen({super.key});
@@ -722,6 +729,274 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
                   ],
                 ),
               ),
+
+              // Spacing between cards
+              const SizedBox(height: 24),
+
+              // Import Timetable Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF222222),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with collapse button
+                    GestureDetector(
+                      onTap: () => setState(() => expandedCard =
+                          expandedCard == 'import' ? 'none' : 'import'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Import Timetable',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: 'Orbitron',
+                            ),
+                          ),
+                          Icon(
+                            expandedCard == 'import'
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Collapsible content
+                    AnimatedCrossFade(
+                      firstChild: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Import Options
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _importFromFile(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1A1A1A),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white10,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.file_upload,
+                                          color: Colors.white70,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Import from File',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                            fontFamily: 'Orbitron',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _showJsonInputDialog(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1A1A1A),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white10,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.text_snippet,
+                                          color: Colors.white70,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Paste JSON',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                            fontFamily: 'Orbitron',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      secondChild: const SizedBox(),
+                      crossFadeState: expandedCard == 'import'
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: const Duration(milliseconds: 300),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Spacing between cards
+              const SizedBox(height: 24),
+
+              // Export Timetable Card
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF222222),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with collapse button
+                    GestureDetector(
+                      onTap: () => setState(() => expandedCard =
+                          expandedCard == 'export' ? 'none' : 'export'),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Export Timetable',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: 'Orbitron',
+                            ),
+                          ),
+                          Icon(
+                            expandedCard == 'export'
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Collapsible content
+                    AnimatedCrossFade(
+                      firstChild: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+
+                          // Export Options
+                          Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _exportToExcel(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1A1A1A),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white10,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.table_chart,
+                                          color: Colors.white70,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Export to Excel',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                            fontFamily: 'Orbitron',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _exportToFile(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1A1A1A),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.white10,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.file_download,
+                                          color: Colors.white70,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Export to JSON',
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                            fontFamily: 'Orbitron',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      secondChild: const SizedBox(),
+                      crossFadeState: expandedCard == 'export'
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      duration: const Duration(milliseconds: 300),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -755,6 +1030,415 @@ class _TimeTableManagerScreenState extends State<TimeTableManagerScreen> {
     );
 
     Navigator.pushNamed(context, '/time-table-editor');
+  }
+
+  void _importFromFile(BuildContext context) async {
+    try {
+      // Let user choose a JSON file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        lockParentWindow: true,
+      );
+
+      if (result == null) {
+        // User cancelled the file picker
+        return;
+      }
+
+      // Read the file content
+      final file = File(result.files.single.path!);
+      final jsonString = await file.readAsString();
+
+      // Parse and validate the JSON
+      final Map<String, dynamic> jsonData = jsonDecode(jsonString);
+
+      // Validate required fields
+      final requiredFields = [
+        'id',
+        'userId',
+        'name',
+        'department',
+        'year',
+        'division',
+        'isPublic',
+        'schedule',
+        'lastModified',
+      ];
+
+      for (final field in requiredFields) {
+        if (!jsonData.containsKey(field)) {
+          throw Exception('Missing required field: $field');
+        }
+      }
+
+      // Validate schedule format
+      final schedule = jsonData['schedule'] as Map<String, dynamic>;
+      for (final day in schedule.keys) {
+        if (schedule[day] is! List) {
+          throw Exception('Invalid schedule format for day: $day');
+        }
+
+        final slots = schedule[day] as List;
+        for (final slot in slots) {
+          if (slot is! Map<String, dynamic>) {
+            throw Exception('Invalid slot format in day: $day');
+          }
+
+          // Validate required slot fields
+          if (!slot.containsKey('sTime') ||
+              !slot.containsKey('eTime') ||
+              !slot.containsKey('type')) {
+            throw Exception('Missing required fields in slot for day: $day');
+          }
+
+          // Validate subSlots if present
+          if (slot.containsKey('subSlots')) {
+            final subSlots = slot['subSlots'];
+            if (subSlots is! List) {
+              throw Exception('Invalid subSlots format in day: $day');
+            }
+
+            for (final subSlot in subSlots) {
+              if (subSlot is! Map<String, dynamic>) {
+                throw Exception('Invalid subSlot format in day: $day');
+              }
+            }
+          }
+        }
+      }
+
+      // Create TimeTable from JSON
+      final timetable = TimeTable.fromJson(jsonData);
+
+      // Save the timetable
+      context.read<TimeTableManagerCubit>().saveTimeTable(timetable);
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Success',
+            'Timetable imported successfully',
+            ContentType.success,
+          ),
+        );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Error',
+            'Failed to import timetable: ${e.toString()}',
+            ContentType.failure,
+          ),
+        );
+    }
+  }
+
+  void _exportToFile(BuildContext context) async {
+    final state = context.read<TimeTableManagerCubit>().state;
+    final currentTimeTable =
+        state is TimeTableManagerLoaded ? state.currentTimeTable : null;
+
+    if (currentTimeTable == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Error',
+            'No timetable selected to export',
+            ContentType.failure,
+          ),
+        );
+      return;
+    }
+
+    try {
+      // Convert timetable to JSON
+      final jsonString = jsonEncode(currentTimeTable.toJson());
+
+      // Get the downloads directory
+      final directory = await getDownloadsDirectory();
+      if (directory == null) {
+        throw Exception('Could not access downloads directory');
+      }
+
+      // Create a default filename using the timetable name
+      final defaultFileName =
+          '${currentTimeTable.name.replaceAll(' ', '_')}.json';
+
+      // Let user choose where to save the file
+      String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Timetable JSON',
+        fileName: defaultFileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        lockParentWindow: true,
+      );
+
+      if (outputFile == null) {
+        // User cancelled the save dialog
+        return;
+      }
+
+      // Ensure the file has .json extension
+      if (!outputFile.toLowerCase().endsWith('.json')) {
+        outputFile += '.json';
+      }
+
+      // Write the JSON to the file
+      final file = File(outputFile);
+      await file.writeAsString(jsonString);
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Success',
+            'Timetable exported successfully',
+            ContentType.success,
+          ),
+        );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Error',
+            'Failed to export timetable: ${e.toString()}',
+            ContentType.failure,
+          ),
+        );
+    }
+  }
+
+  void _showJsonInputDialog(BuildContext context) {
+    final TextEditingController jsonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => shadcn.AlertDialog(
+        title: Text(
+          'Import Timetable from JSON',
+          style: TextStyles.titleLarge.copyWith(fontFamily: 'NovaFlat'),
+        ),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextField(
+                  controller: jsonController,
+                  maxLines: 25,
+                  style: const TextStyle(
+                    fontFamily: 'Orbitron',
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '''Paste your timetable JSON here...
+          Example format:
+          {
+            "id": "unique-id",
+            "name": "Timetable Name",
+            "userId": "user-id",
+            "department": "COMPS",
+            "year": "SE",
+            "division": "A",
+            "lastModified": "DateTime",
+            "schedule": {
+              "Monday": [
+                { 
+                  "sTime": "9:00",
+                  "eTime": "10:00",
+                  "subject": "Subject Name",
+                  "teacher": "Teacher Name",
+                  "location": "Room Number",
+                  "type": "TH"
+                }
+              ]
+            }
+          }''',
+                    hintStyle: TextStyle(
+                      color: Colors.white38,
+                      fontFamily: 'Orbitron',
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: Colors.white70,
+                fontFamily: 'Orbitron',
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              try {
+                final jsonString = jsonController.text.trim();
+                if (jsonString.isEmpty) {
+                  throw Exception('Please enter a timetable JSON');
+                }
+
+                final Map<String, dynamic> jsonData = jsonDecode(jsonString);
+
+                // Validate required fields
+                final requiredFields = [
+                  'id',
+                  'userId',
+                  'name',
+                  'department',
+                  'year',
+                  'division',
+                  'isPublic',
+                  'schedule',
+                  'lastModified',
+                ];
+
+                for (final field in requiredFields) {
+                  if (!jsonData.containsKey(field)) {
+                    throw Exception('Missing required field: $field');
+                  }
+                }
+
+                // Validate schedule format
+                final schedule = jsonData['schedule'] as Map<String, dynamic>;
+                for (final day in schedule.keys) {
+                  if (schedule[day] is! List) {
+                    throw Exception('Invalid schedule format for day: $day');
+                  }
+
+                  final slots = schedule[day] as List;
+                  for (final slot in slots) {
+                    if (slot is! Map<String, dynamic>) {
+                      throw Exception('Invalid slot format in day: $day');
+                    }
+
+                    // Validate required slot fields
+                    if (!slot.containsKey('sTime') ||
+                        !slot.containsKey('eTime') ||
+                        !slot.containsKey('type')) {
+                      throw Exception(
+                          'Missing required fields in slot for day: $day');
+                    }
+
+                    // Validate subSlots if present
+                    if (slot.containsKey('subSlots')) {
+                      final subSlots = slot['subSlots'];
+                      if (subSlots is! List) {
+                        throw Exception('Invalid subSlots format in day: $day');
+                      }
+
+                      for (final subSlot in subSlots) {
+                        if (subSlot is! Map<String, dynamic>) {
+                          throw Exception(
+                              'Invalid subSlot format in day: $day');
+                        }
+                      }
+                    }
+                  }
+                }
+
+                // Create TimeTable from JSON
+                final timetable = TimeTable.fromJson(jsonData);
+
+                // Save the timetable
+                context.read<TimeTableManagerCubit>().saveTimeTable(timetable);
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    getSnackBar(
+                      'Success',
+                      'Timetable imported successfully',
+                      ContentType.success,
+                    ),
+                  );
+              } catch (e) {
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    getSnackBar(
+                      'Error',
+                      e.toString(),
+                      ContentType.failure,
+                    ),
+                  );
+              }
+            },
+            child: const Text(
+              'Import',
+              style: TextStyle(
+                color: Color(0xFF7ED1D7),
+                fontFamily: 'Orbitron',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _exportToExcel(BuildContext context) async {
+    final state = context.read<TimeTableManagerCubit>().state;
+    final currentTimeTable =
+        state is TimeTableManagerLoaded ? state.currentTimeTable : null;
+
+    if (currentTimeTable == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Error',
+            'No timetable selected to export',
+            ContentType.failure,
+          ),
+        );
+      return;
+    }
+
+    try {
+      // Export the schedule to Excel
+      await exportScheduleToExcel(currentTimeTable.schedule);
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Success',
+            'Timetable exported to Excel successfully',
+            ContentType.success,
+          ),
+        );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          getSnackBar(
+            'Error',
+            'Failed to export timetable to Excel: ${e.toString()}',
+            ContentType.failure,
+          ),
+        );
+    }
   }
 
   SnackBar getSnackBar(title, message, contentType, {duration = 3}) {

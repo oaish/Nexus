@@ -46,21 +46,21 @@ class EditorNexusBackBtn extends StatelessWidget {
               },
             ),
           ),
-          GestureDetector(
-            onTap: () => _showBottomModal(context),
-            child: Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedMoreHorizontalSquare01,
-                color: colorScheme.onPrimary,
-                size: 24.0,
-              ),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () => _showBottomModal(context),
+          //   child: Container(
+          //     padding: const EdgeInsets.all(8.0),
+          //     decoration: BoxDecoration(
+          //       color: colorScheme.primary,
+          //       borderRadius: BorderRadius.circular(10),
+          //     ),
+          //     child: HugeIcon(
+          //       icon: HugeIcons.strokeRoundedMoreHorizontalSquare01,
+          //       color: colorScheme.onPrimary,
+          //       size: 24.0,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

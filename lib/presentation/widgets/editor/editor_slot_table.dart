@@ -52,7 +52,11 @@ class EditorSlotTable extends StatelessWidget {
                     builder: (context, batchState) {
                       final current = batchState as BatchLoaded;
                       if (length == 0) {
-                        return EditorNoSlotTile(weekDays[weekIndex]);
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 0.0),
+                          child: EditorNoSlotTile(weekDays[weekIndex]),
+                        );
                       }
 
                       return Padding(

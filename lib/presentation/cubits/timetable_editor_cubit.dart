@@ -274,4 +274,41 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     List<String> parts = time.split(":");
     return DateTime(0, 0, 0, int.parse(parts[0]), int.parse(parts[1]));
   }
+
+  void deleteTimeSlot(String day, int index) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        final timetable = currentState.timetable;
+        final updatedSchedule = Map<String, dynamic>.from(timetable.schedule);
+
+        if (updatedSchedule.containsKey(day)) {
+          final daySlots =
+              List<Map<String, dynamic>>.from(updatedSchedule[day] as List);
+
+          if (index >= 0 && index < daySlots.length) {
+            // Remove the slot at the specified index
+            daySlots.removeAt(index);
+
+            // Update the schedule
+            updatedSchedule[day] = daySlots;
+
+            // Create updated timetable
+            final updatedTimeTable = timetable.copyWith(
+              schedule: updatedSchedule,
+              lastModified: DateTime.now(),
+            );
+
+            // Save the updated timetable
+            _timeTableManagerCubit.saveTimeTable(updatedTimeTable);
+
+            // Emit new state
+            emit(currentState.copyWith(timetable: updatedTimeTable));
+          }
+        }
+      }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to delete time slot: $e'));
+    }
+  }
 }

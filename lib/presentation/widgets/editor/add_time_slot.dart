@@ -11,9 +11,10 @@ import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 
 class AddTimeSlot extends StatelessWidget {
-  const AddTimeSlot(this.weekDay, {super.key});
+  const AddTimeSlot(this.weekDay, {super.key, this.existingSlot});
 
   final String weekDay;
+  final Map<String, dynamic>? existingSlot;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class AddTimeSlot extends StatelessWidget {
     };
 
     return BlocProvider(
-      create: (context) => TimeSlotCubit()..loadDefaultTimeSlot(),
+      create: (context) => TimeSlotCubit()..loadDefaultTimeSlot(existingSlot),
       child: BlocBuilder<TimeSlotCubit, TimeSlotState>(
         builder: (context, state) {
           final type =
@@ -79,7 +80,8 @@ class AddTimeSlot extends StatelessWidget {
               Divider(
                 color: Colors.white.withAlpha(70),
               ),
-              SlotForm(weekDay: weekDay, type: type!),
+              SlotForm(
+                  weekDay: weekDay, type: type!, existingSlot: existingSlot),
             ],
           );
         },
@@ -89,9 +91,14 @@ class AddTimeSlot extends StatelessWidget {
 }
 
 class SlotForm extends StatefulWidget {
-  const SlotForm({super.key, required this.type, required this.weekDay});
+  const SlotForm(
+      {super.key,
+      required this.type,
+      required this.weekDay,
+      this.existingSlot});
   final String weekDay;
   final String type;
+  final Map<String, dynamic>? existingSlot;
 
   @override
   State<SlotForm> createState() => _SlotFormState();
@@ -129,6 +136,90 @@ class _SlotFormState extends State<SlotForm> {
       'location': TextEditingController(),
     },
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
+    if (widget.existingSlot != null) {
+      // Initialize duration
+      final sTime = widget.existingSlot!['sTime'] as String;
+      final eTime = widget.existingSlot!['eTime'] as String;
+
+      final sParts = sTime.split(':');
+      final eParts = eTime.split(':');
+
+      final sMinutes = int.parse(sParts[0]) * 60 + int.parse(sParts[1]);
+      final eMinutes = int.parse(eParts[0]) * 60 + int.parse(eParts[1]);
+
+      final durationMinutes = eMinutes - sMinutes;
+      duration =
+          TimeOfDay(hour: durationMinutes ~/ 60, minute: durationMinutes % 60);
+      durationText =
+          '${duration.hour.toString().padLeft(2, '0')}:${duration.minute.toString().padLeft(2, '0')}';
+
+      // Initialize controllers based on slot type
+      switch (widget.type) {
+        case "TH":
+        case "MP":
+          _subjectController.text = widget.existingSlot!['subject'] ?? '';
+          _facultyController.text = widget.existingSlot!['teacher'] ?? '';
+          _locationController.text = widget.existingSlot!['location'] ?? '';
+          break;
+        case "PR":
+          final subSlots = widget.existingSlot!['subSlots'] as List<dynamic>?;
+          if (subSlots != null) {
+            for (int i = 0; i < subSlots.length && i < 3; i++) {
+              final subSlot = subSlots[i];
+              _labSubSlotControllers[i]['subject']?.text =
+                  subSlot['subject'] ?? '';
+              _labSubSlotControllers[i]['faculty']?.text =
+                  subSlot['teacher'] ?? '';
+              _labSubSlotControllers[i]['location']?.text =
+                  subSlot['location'] ?? '';
+            }
+          }
+          break;
+        case "TT":
+          final subSlots = widget.existingSlot!['subSlots'] as List<dynamic>?;
+          if (subSlots != null) {
+            for (int i = 0; i < subSlots.length && i < 2; i++) {
+              final subSlot = subSlots[i];
+              _tutorialSubSlotControllers[i]['activity']?.text =
+                  subSlot['activity'] ?? '';
+              _tutorialSubSlotControllers[i]['faculty']?.text =
+                  subSlot['teacher'] ?? '';
+              _tutorialSubSlotControllers[i]['location']?.text =
+                  subSlot['location'] ?? '';
+            }
+          }
+          break;
+        case "AC":
+          _subjectController.text = widget.existingSlot!['activity'] ?? '';
+          break;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _subjectController.dispose();
+    _facultyController.dispose();
+    _locationController.dispose();
+
+    for (var controller in _labSubSlotControllers) {
+      controller.values.forEach((c) => c.dispose());
+    }
+
+    for (var controller in _tutorialSubSlotControllers) {
+      controller.values.forEach((c) => c.dispose());
+    }
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
