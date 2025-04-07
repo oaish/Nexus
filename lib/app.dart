@@ -85,6 +85,7 @@ class MyApp extends StatelessWidget {
                   '/time-table-viewer': AppRoutes.timeTableViewerPage,
                   '/time-table-editor': AppRoutes.timeTableEditorPage,
                   '/time-table-manager': AppRoutes.timeTableManagerPage,
+                  '/documents-organizer': AppRoutes.documentsOrganizerPage,
                 },
                 theme: ThemeData(
                   colorScheme: const ColorScheme(

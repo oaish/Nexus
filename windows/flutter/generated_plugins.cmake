@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   local_auth_windows
   permission_handler_windows
   screen_retriever_windows
+  syncfusion_pdfviewer_windows
   system_theme
   url_launcher_windows
   window_manager

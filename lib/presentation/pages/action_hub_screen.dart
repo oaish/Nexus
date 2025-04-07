@@ -25,9 +25,10 @@ class ActionHubScreen extends StatelessWidget {
                     'Actions',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 28,
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
+                      fontFamily: 'Orbitron',
                     ),
                   ),
                   SizedBox(height: 4),
@@ -35,8 +36,9 @@ class ActionHubScreen extends StatelessWidget {
                     'Access your tools and resources',
                     style: TextStyle(
                       color: Colors.white60,
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
+                      fontFamily: 'Orbitron',
                     ),
                   ),
                 ],
@@ -62,7 +64,6 @@ class ActionHubScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 16),
-                      //color: const Color(0xFF4E7CFF),
 
                       // Tasks Action
                       ActionButton(
@@ -92,7 +93,9 @@ class ActionHubScreen extends StatelessWidget {
                         title: 'Documents',
                         subtitle: 'Organize and access your files',
                         icon: HugeIcons.strokeRoundedFolder01,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.pushNamed(context, '/documents-organizer');
+                        },
                       ),
 
                       const SizedBox(height: 16),
@@ -200,8 +203,9 @@ class ActionButton extends StatelessWidget {
                           title,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'Orbitron',
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -209,8 +213,9 @@ class ActionButton extends StatelessWidget {
                           subtitle,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
-                            fontSize: 13,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
+                            fontFamily: 'Orbitron',
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
