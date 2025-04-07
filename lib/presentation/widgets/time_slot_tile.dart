@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/domain/entities/timetable_slot.dart';
 import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_view_state.dart';
 
 class TimeSlotTile extends StatelessWidget {
   const TimeSlotTile({
@@ -77,8 +78,12 @@ class TimeSlotTile extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: Border(left: BorderSide(color: accentColor, width: 5), right: BorderSide(color: accentColor, width: 5)),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
+        border: Border(
+            left: BorderSide(color: accentColor, width: 5),
+            right: BorderSide(color: accentColor, width: 5)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)
+        ],
         // color: Colors.grey[700]!,
         color: const Color(0xff222222),
         // color: const Color(0xff181818),
@@ -141,7 +146,9 @@ class TimeSlotTile extends StatelessWidget {
               children: [
                 Expanded(
                   child: _slotLabel(
-                    isPractical ? HugeIcons.strokeRoundedTestTube01 : HugeIcons.strokeRoundedActivity01,
+                    isPractical
+                        ? HugeIcons.strokeRoundedTestTube01
+                        : HugeIcons.strokeRoundedActivity01,
                     (isPractical ? subSlot.subject : subSlot.activity) ?? '',
                     // isTitle: true,
                   ),
@@ -170,7 +177,8 @@ class TimeSlotTile extends StatelessWidget {
                       context.read<TimeTableViewCubit>().circleGroup();
                     }
                   },
-                  child: _slotLabel(HugeIcons.strokeRoundedUserMultiple, isPractical ? subSlot.batch : subSlot.group),
+                  child: _slotLabel(HugeIcons.strokeRoundedUserMultiple,
+                      isPractical ? subSlot.batch : subSlot.group),
                 ),
               ],
             )
@@ -251,9 +259,12 @@ class NoSlotTile extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
       decoration: BoxDecoration(
-        border:
-            const Border(left: BorderSide(color: Colors.red, width: 5), right: BorderSide(color: Colors.red, width: 5)),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
+        border: const Border(
+            left: BorderSide(color: Colors.red, width: 5),
+            right: BorderSide(color: Colors.red, width: 5)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)
+        ],
         color: const Color(0xff222222),
         borderRadius: BorderRadius.circular(8),
       ),

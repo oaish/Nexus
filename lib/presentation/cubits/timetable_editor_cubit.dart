@@ -1,21 +1,17 @@
-// lib/presentation/cubits/timetable_editor_cubit.dart
-import 'dart:convert';
-
-import 'package:bloc/bloc.dart';
-import 'package:nexus/core/constants/app_data.dart';
-import 'package:nexus/core/utils/timetable_extensions.dart';
-import 'package:nexus/data/models/timetable_slot_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexus/domain/entities/timetable.dart';
-import 'package:nexus/domain/entities/timetable_slot.dart';
+import 'package:nexus/presentation/cubits/timetable_editor_state.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:uuid/uuid.dart';
-
-import 'timetable_editor_state.dart';
+import 'package:nexus/data/models/timetable_slot_model.dart';
 
 class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
-  TimeTableEditorCubit() : super(TimeTableEditorInitial());
+  final TimeTableManagerCubit _timeTableManagerCubit;
 
-  /// Creates a new timetable with default schedule.
+  TimeTableEditorCubit(this._timeTableManagerCubit)
+      : super(TimeTableEditorInitial());
+
   void createTimeTable({
     required String name,
     required String userId,
@@ -23,34 +19,30 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     required String year,
     required String division,
   }) {
-    final defaultSchedule = {
-      'Monday': <TimeTableSlot>[],
-      'Tuesday': <TimeTableSlot>[],
-      'Wednesday': <TimeTableSlot>[],
-      'Thursday': <TimeTableSlot>[],
-      'Friday': <TimeTableSlot>[],
-      'Saturday': <TimeTableSlot>[],
-      'Sunday': <TimeTableSlot>[],
-    };
+    try {
+      emit(TimeTableEditorLoading());
 
-    final schedule =
-        <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
+      final newTimeTable = TimeTable(
+        id: const Uuid().v4(),
+        name: name,
+        userId: userId,
+        department: department,
+        year: year,
+        division: division,
+        schedule: {},
+        lastModified: DateTime.now(),
+        isPublic: false,
+      );
 
-    final timetable = TimeTable(
-      id: const Uuid().v4(),
-      name: name,
-      userId: userId,
-      schedule: schedule,
-      lastModified: DateTime.now(),
-      department: department,
-      year: year,
-      division: division,
-    );
-
-    emit(TimeTableEditorLoaded(timetable));
+      emit(TimeTableEditorLoaded(
+        timetable: newTimeTable,
+        isEditing: false,
+      ));
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to create timetable: $e'));
+    }
   }
 
-  /// Edits an existing timetable.
   void editTimeTable({
     required String id,
     required String name,
@@ -58,49 +50,74 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     required String department,
     required String year,
     required String division,
-    required Map<String, List<TimeTableSlot>> schedule,
+    required Map<String, dynamic> schedule,
   }) {
-    final timetable = TimeTable(
-      id: id,
-      name: name,
-      userId: userId,
-      schedule: schedule,
-      lastModified: DateTime.now(),
-      department: department,
-      year: year,
-      division: division,
-    );
+    try {
+      emit(TimeTableEditorLoading());
 
-    emit(TimeTableEditorLoaded(timetable));
-  }
-
-  /// Adds a new time slot for the specified day.
-  void addTimeSlot(String day, TimeTableSlot slot) {
-    if (state is TimeTableEditorLoaded) {
-      final current = state as TimeTableEditorLoaded;
-      final timetable = current.timetable;
-      final updatedSchedule =
-          Map<String, List<TimeTableSlot>>.from(timetable.schedule);
-      final daySlots = List<TimeTableSlot>.from(updatedSchedule[day] ?? []);
-      daySlots.add(slot);
-      updatedSchedule[day] = daySlots;
-      final updatedTimeTable = TimeTable(
-        id: timetable.id,
-        name: timetable.name,
-        userId: timetable.userId,
-        schedule: updatedSchedule,
+      final existingTimeTable = TimeTable(
+        id: id,
+        name: name,
+        userId: userId,
+        department: department,
+        year: year,
+        division: division,
+        schedule: schedule,
         lastModified: DateTime.now(),
-        department: timetable.department,
-        year: timetable.year,
-        division: timetable.division,
+        isPublic: false,
       );
-      emit(TimeTableEditorLoaded(updatedTimeTable));
+
+      emit(TimeTableEditorLoaded(
+        timetable: existingTimeTable,
+        isEditing: true,
+      ));
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to edit timetable: $e'));
     }
   }
 
-  /// Updates the current timetable with modifications.
-  void updateTimeTable(TimeTable updatedTimeTable) {
-    emit(TimeTableEditorLoaded(updatedTimeTable));
+  void updateSchedule(Map<String, dynamic> newSchedule) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        final updatedTimeTable = currentState.timetable.copyWith(
+          schedule: newSchedule,
+          lastModified: DateTime.now(),
+        );
+
+        emit(currentState.copyWith(timetable: updatedTimeTable));
+      }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to update schedule: $e'));
+    }
+  }
+
+  void saveTimeTable() {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        _timeTableManagerCubit.saveTimeTable(currentState.timetable);
+        emit(TimeTableEditorInitial());
+      }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to save timetable: $e'));
+    }
+  }
+
+  void setPublic(bool isPublic) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        final updatedTimeTable = currentState.timetable.copyWith(
+          isPublic: isPublic,
+          lastModified: DateTime.now(),
+        );
+
+        emit(currentState.copyWith(timetable: updatedTimeTable));
+      }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to update public status: $e'));
+    }
   }
 
   List<String> getNextTimeSlot(String day, TimeOfDay duration) {
@@ -113,7 +130,8 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     final daySlots = timetable.schedule[day] ?? [];
 
     // Get the last inserted slot's eTime or default to "09:00"
-    final lastETime = daySlots.isNotEmpty ? daySlots.last.eTime : "09:00";
+    final lastETime =
+        daySlots.isNotEmpty ? daySlots.last['eTime'] as String : "09:00";
 
     // Convert lastETime to TimeOfDay
     final lastETimeParts = lastETime.split(':');
@@ -135,58 +153,98 @@ class TimeTableEditorCubit extends Cubit<TimeTableEditorState> {
     return [lastETime, newETime];
   }
 
+  void addTimeSlot(String day, TimeTableSlotModel slot) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        final timetable = currentState.timetable;
+        final updatedSchedule = Map<String, dynamic>.from(timetable.schedule);
+
+        // Initialize the day's slots if it doesn't exist
+        if (!updatedSchedule.containsKey(day)) {
+          updatedSchedule[day] = [];
+        }
+
+        // Add the new slot to the day's slots
+        final daySlots =
+            List<Map<String, dynamic>>.from(updatedSchedule[day] as List);
+
+        // Convert TimeTableSlotModel to Map<String, dynamic>
+        final slotMap = slot.toJson();
+        daySlots.add(slotMap);
+
+        // Update the schedule with the new slot
+        updatedSchedule[day] = daySlots;
+
+        // Create updated timetable
+        final updatedTimeTable = timetable.copyWith(
+          schedule: updatedSchedule,
+          lastModified: DateTime.now(),
+        );
+
+        // Emit new state
+        emit(currentState.copyWith(timetable: updatedTimeTable));
+      }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to add time slot: $e'));
+    }
+  }
+
   void reorderSlot(String day, int oldIndex, int newIndex) {
-    if (state is TimeTableEditorLoaded) {
-      final current = state as TimeTableEditorLoaded;
-      final timetable = current.timetable;
-      final updatedSchedule =
-          Map<String, List<TimeTableSlot>>.from(timetable.schedule);
+    try {
+      final currentState = state;
+      if (currentState is TimeTableEditorLoaded) {
+        final timetable = currentState.timetable;
+        final updatedSchedule = Map<String, dynamic>.from(timetable.schedule);
 
-      if (updatedSchedule.containsKey(day)) {
-        final daySlots = List<TimeTableSlot>.from(updatedSchedule[day]!);
+        if (updatedSchedule.containsKey(day)) {
+          final daySlots =
+              List<Map<String, dynamic>>.from(updatedSchedule[day] as List);
 
-        if (oldIndex < daySlots.length && newIndex <= daySlots.length) {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
+          if (oldIndex < daySlots.length && newIndex <= daySlots.length) {
+            if (newIndex > oldIndex) {
+              newIndex -= 1;
+            }
+
+            // Move the slot
+            final movedSlot = daySlots.removeAt(oldIndex);
+            daySlots.insert(newIndex, movedSlot);
+
+            // Keep the first slot's start time unchanged
+            const String firstSlotStartTime = "9:00"; // Fixed start time
+            String currentStartTime = firstSlotStartTime;
+
+            // Recalculate times for all slots
+            for (int i = 0; i < daySlots.length; i++) {
+              int durationMinutes = _calculateDuration(
+                daySlots[i]['sTime'] as String,
+                daySlots[i]['eTime'] as String,
+              );
+              String newEndTime =
+                  _addMinutesToTime(currentStartTime, durationMinutes);
+
+              daySlots[i] = {
+                ...daySlots[i],
+                'sTime': currentStartTime,
+                'eTime': newEndTime,
+              };
+              currentStartTime =
+                  newEndTime; // Next slot starts from the last slot's end time
+            }
+
+            updatedSchedule[day] = daySlots;
+
+            final updatedTimeTable = timetable.copyWith(
+              schedule: updatedSchedule,
+              lastModified: DateTime.now(),
+            );
+
+            emit(currentState.copyWith(timetable: updatedTimeTable));
           }
-
-          // Move the slot
-          final movedSlot = daySlots.removeAt(oldIndex);
-          daySlots.insert(newIndex, movedSlot);
-
-          // Keep the first slot's start time unchanged
-          const String firstSlotStartTime = "9:00"; // Fixed start time
-          String currentStartTime = firstSlotStartTime;
-
-          // Recalculate times for all slots
-          for (int i = 0; i < daySlots.length; i++) {
-            int durationMinutes =
-                _calculateDuration(daySlots[i].sTime, daySlots[i].eTime);
-            String newEndTime =
-                _addMinutesToTime(currentStartTime, durationMinutes);
-
-            daySlots[i] = daySlots[i]
-                .copyWith(sTime: currentStartTime, eTime: newEndTime);
-            currentStartTime =
-                newEndTime; // Next slot starts from the last slot's end time
-          }
-
-          updatedSchedule[day] = daySlots;
-
-          final updatedTimeTable = TimeTable(
-            id: timetable.id,
-            name: timetable.name,
-            userId: timetable.userId,
-            schedule: updatedSchedule,
-            lastModified: DateTime.now(),
-            department: timetable.department,
-            year: timetable.year,
-            division: timetable.division,
-          );
-
-          emit(TimeTableEditorLoaded(updatedTimeTable));
         }
       }
+    } catch (e) {
+      emit(TimeTableEditorError('Failed to reorder slot: $e'));
     }
   }
 

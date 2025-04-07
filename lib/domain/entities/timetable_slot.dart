@@ -20,4 +20,26 @@ class TimeTableSlot {
     this.type,
     this.subSlots,
   });
+
+  TimeTableSlot copyWith({
+    String? sTime,
+    String? eTime,
+    String? subject,
+    String? teacher,
+    String? location,
+    String? activity,
+    String? type,
+    List<SubSlot>? subSlots,
+  }) {
+    return TimeTableSlot(
+      sTime: sTime ?? this.sTime,
+      eTime: eTime ?? this.eTime,
+      subject: subject ?? this.subject,
+      teacher: teacher ?? this.teacher,
+      location: location ?? this.location,
+      activity: activity ?? this.activity,
+      type: type ?? this.type,
+      subSlots: subSlots ?? this.subSlots,
+    );
+  }
 }

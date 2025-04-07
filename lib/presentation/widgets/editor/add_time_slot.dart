@@ -29,7 +29,8 @@ class AddTimeSlot extends StatelessWidget {
       create: (context) => TimeSlotCubit()..loadDefaultTimeSlot(),
       child: BlocBuilder<TimeSlotCubit, TimeSlotState>(
         builder: (context, state) {
-          final type = (context.read<TimeSlotCubit>().state as TimeSlotLoaded).type;
+          final type =
+              (context.read<TimeSlotCubit>().state as TimeSlotLoaded).type;
 
           return Column(
             spacing: 10,
@@ -63,7 +64,8 @@ class AddTimeSlot extends StatelessWidget {
                     },
                     value: types[type],
                     children: [
-                      ...types.entries.map((e) => SelectItemButton(value: e.key, child: Text(e.value))),
+                      ...types.entries.map((e) =>
+                          SelectItemButton(value: e.key, child: Text(e.value))),
                     ],
                   ),
                 ],
@@ -97,7 +99,8 @@ class _SlotFormState extends State<SlotForm> {
   final TextEditingController _facultyController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
 
-  final List<Map<String, TextEditingController>> _labSubSlotControllers = List.generate(
+  final List<Map<String, TextEditingController>> _labSubSlotControllers =
+      List.generate(
     3,
     (index) => {
       'subject': TextEditingController(),
@@ -106,7 +109,8 @@ class _SlotFormState extends State<SlotForm> {
     },
   );
 
-  final List<Map<String, TextEditingController>> _tutorialSubSlotControllers = List.generate(
+  final List<Map<String, TextEditingController>> _tutorialSubSlotControllers =
+      List.generate(
     2,
     (index) => {
       'activity': TextEditingController(),
@@ -165,10 +169,13 @@ class _SlotFormState extends State<SlotForm> {
       },
     );
 
-    final [sTime, eTime] = context.read<TimeTableEditorCubit>().getNextTimeSlot(widget.weekDay, duration);
-    TimeTableSlot slot;
+    final [sTime, eTime] = context
+        .read<TimeTableEditorCubit>()
+        .getNextTimeSlot(widget.weekDay, duration);
+    TimeTableSlotModel slotModel;
 
-    slot = TimeTableSlotModel(
+    // Create model first, then convert to entity at the end
+    slotModel = TimeTableSlotModel(
       sTime: sTime,
       eTime: eTime,
       type: widget.type,
@@ -176,7 +183,7 @@ class _SlotFormState extends State<SlotForm> {
 
     switch (widget.type) {
       case "TH":
-        slot = TimeTableSlotModel(
+        slotModel = TimeTableSlotModel(
           sTime: sTime,
           eTime: eTime,
           type: widget.type,
@@ -186,7 +193,7 @@ class _SlotFormState extends State<SlotForm> {
         );
         break;
       case "PR":
-        slot = TimeTableSlotModel(
+        slotModel = TimeTableSlotModel(
           sTime: sTime,
           eTime: eTime,
           type: widget.type,
@@ -202,7 +209,7 @@ class _SlotFormState extends State<SlotForm> {
         );
         break;
       case "TT":
-        slot = TimeTableSlotModel(
+        slotModel = TimeTableSlotModel(
           sTime: sTime,
           eTime: eTime,
           type: widget.type,
@@ -218,7 +225,7 @@ class _SlotFormState extends State<SlotForm> {
         );
         break;
       case "AC":
-        slot = TimeTableSlotModel(
+        slotModel = TimeTableSlotModel(
           sTime: sTime,
           eTime: eTime,
           type: widget.type,
@@ -226,7 +233,7 @@ class _SlotFormState extends State<SlotForm> {
         );
         break;
       case "MP":
-        slot = TimeTableSlotModel(
+        slotModel = TimeTableSlotModel(
           sTime: sTime,
           eTime: eTime,
           type: widget.type,
@@ -237,6 +244,7 @@ class _SlotFormState extends State<SlotForm> {
         break;
     }
 
+    final slot = slotModel;
     context.read<TimeTableEditorCubit>().addTimeSlot(widget.weekDay, slot);
     Navigator.pop(context);
   }
@@ -264,7 +272,8 @@ class _SlotFormState extends State<SlotForm> {
       children: [
         _slotFormField('Subject', 'Enter the subject name', _subjectController),
         _slotFormField('Faculty', 'Enter the faculty name', _facultyController),
-        _slotFormField('Location', 'Enter the room location', _locationController),
+        _slotFormField(
+            'Location', 'Enter the room location', _locationController),
         _slotDuration(),
       ],
     );
@@ -293,9 +302,12 @@ class _SlotFormState extends State<SlotForm> {
             return Column(
               spacing: 5,
               children: [
-                _slotFormField('Subject', 'Enter the subject name', _labSubSlotControllers[index]['subject']),
-                _slotFormField('Faculty', 'Enter the faculty name', _labSubSlotControllers[index]['faculty']),
-                _slotFormField('Location', 'Enter the room location', _labSubSlotControllers[index]['location']),
+                _slotFormField('Subject', 'Enter the subject name',
+                    _labSubSlotControllers[index]['subject']),
+                _slotFormField('Faculty', 'Enter the faculty name',
+                    _labSubSlotControllers[index]['faculty']),
+                _slotFormField('Location', 'Enter the room location',
+                    _labSubSlotControllers[index]['location']),
               ],
             );
           }),
@@ -327,9 +339,12 @@ class _SlotFormState extends State<SlotForm> {
             return Column(
               spacing: 5,
               children: [
-                _slotFormField('Activity', 'Enter the activity name', _tutorialSubSlotControllers[index]['activity']),
-                _slotFormField('Faculty', 'Enter the faculty name', _tutorialSubSlotControllers[index]['faculty']),
-                _slotFormField('Location', 'Enter the room location', _tutorialSubSlotControllers[index]['location']),
+                _slotFormField('Activity', 'Enter the activity name',
+                    _tutorialSubSlotControllers[index]['activity']),
+                _slotFormField('Faculty', 'Enter the faculty name',
+                    _tutorialSubSlotControllers[index]['faculty']),
+                _slotFormField('Location', 'Enter the room location',
+                    _tutorialSubSlotControllers[index]['location']),
               ],
             );
           }),
@@ -343,7 +358,8 @@ class _SlotFormState extends State<SlotForm> {
     return Column(
       spacing: 10,
       children: [
-        _slotFormField('Activity', 'Enter the activity name', _subjectController),
+        _slotFormField(
+            'Activity', 'Enter the activity name', _subjectController),
         _slotDuration(),
       ],
     );
@@ -355,7 +371,8 @@ class _SlotFormState extends State<SlotForm> {
       children: [
         _slotFormField('Subject', 'Enter the subject name', _subjectController),
         _slotFormField('Faculty', 'Enter the faculty name', _facultyController),
-        _slotFormField('Location', 'Enter the room location', _locationController),
+        _slotFormField(
+            'Location', 'Enter the room location', _locationController),
         _slotDuration(),
       ],
     );

@@ -1,57 +1,68 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
-import 'package:nexus/domain/entities/timetable_slot.dart';
-import 'package:nexus/domain/repositories/timetable_view_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_cubit.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
+import 'package:nexus/presentation/cubits/timetable_view_state.dart';
 
-@immutable
-sealed class TimeTableViewState extends Equatable {
-  const TimeTableViewState();
-
-  @override
-  List<Object?> get props => [];
-}
+const List<String> weekDays = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday'
+];
 
 class TimeTableViewCubit extends Cubit<TimeTableViewState> {
-  final TimeTableViewRepository repository;
+  final TimeTableManagerCubit _timeTableManagerCubit;
+  int _currentIndex = 0;
 
-  TimeTableViewCubit({required this.repository}) : super(const TimeTableViewInitial());
+  TimeTableViewCubit(this._timeTableManagerCubit)
+      : super(TimeTableViewInitial());
 
-  void loadTimeTable({String? weekDay}) {
-    List<TimeTableSlot> slots;
-    if (weekDay == null) {
-      slots = repository.getCurrentDay();
-    } else {
-      slots = repository.getFromWeekDay(weekDay);
+  Future<void> loadTimeTable() async {
+    try {
+      emit(TimeTableViewLoading());
+
+      // Get the current timetable from the TimeTableManagerCubit
+      final managerState = _timeTableManagerCubit.state;
+      if (managerState is TimeTableManagerLoaded &&
+          managerState.currentTimeTable != null) {
+        final timetable = managerState.currentTimeTable!;
+
+        emit(TimeTableViewLoaded(
+          timetable: timetable,
+          batchIndex: 0,
+          groupIndex: 0,
+          currentIndex: _currentIndex,
+          currentDayIndex: 0,
+        ));
+      } else {
+        emit(TimeTableViewError('No timetable selected'));
+      }
+    } catch (e) {
+      emit(TimeTableViewError('Failed to load timetable: $e'));
     }
-    final currentIndex = repository.getCurrentTimeSlotIndex();
-    emit(TimeTableViewLoaded(
-      slots: slots,
-      currentIndex: currentIndex,
-      batchIndex: 0,
-      groupIndex: 0,
-    ));
   }
 
-  void nextSlot() {
-    if (state is TimeTableViewLoaded) {
-      final currentState = state as TimeTableViewLoaded;
-      if (currentState.currentIndex < currentState.slots.length - 1) {
-        emit(currentState.copyWith(
-          currentIndex: currentState.currentIndex + 1,
-        ));
+  void selectBatch(int batchIndex) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableViewLoaded) {
+        emit(currentState.copyWith(batchIndex: batchIndex));
       }
+    } catch (e) {
+      emit(TimeTableViewError('Failed to select batch: $e'));
     }
   }
 
-  void previousSlot() {
-    if (state is TimeTableViewLoaded) {
-      final currentState = state as TimeTableViewLoaded;
-      if (currentState.currentIndex > 0) {
-        emit(currentState.copyWith(
-          currentIndex: currentState.currentIndex - 1,
-        ));
+  void selectGroup(int groupIndex) {
+    try {
+      final currentState = state;
+      if (currentState is TimeTableViewLoaded) {
+        emit(currentState.copyWith(groupIndex: groupIndex));
       }
+    } catch (e) {
+      emit(TimeTableViewError('Failed to select group: $e'));
     }
   }
 
@@ -72,34 +83,31 @@ class TimeTableViewCubit extends Cubit<TimeTableViewState> {
       emit(currentState.copyWith(groupIndex: newGroupIndex));
     }
   }
-}
 
-final class TimeTableViewInitial extends TimeTableViewState {
-  const TimeTableViewInitial();
-}
-
-final class TimeTableViewLoaded extends TimeTableViewState {
-  final List<TimeTableSlot> slots;
-  final int currentIndex;
-  final int batchIndex;
-  final int groupIndex;
-
-  const TimeTableViewLoaded({
-    required this.slots,
-    required this.currentIndex,
-    required this.batchIndex,
-    required this.groupIndex,
-  });
-
-  TimeTableViewLoaded copyWith({int? currentIndex, int? batchIndex, int? groupIndex}) {
-    return TimeTableViewLoaded(
-      slots: slots,
-      currentIndex: currentIndex ?? this.currentIndex,
-      batchIndex: batchIndex ?? this.batchIndex,
-      groupIndex: groupIndex ?? this.groupIndex,
-    );
+  void nextSlot() {
+    if (state is TimeTableViewLoaded) {
+      final currentState = state as TimeTableViewLoaded;
+      final slots = currentState
+              .timetable.schedule[weekDays[currentState.currentDayIndex]] ??
+          [];
+      if (_currentIndex < slots.length - 1) {
+        _currentIndex++;
+        emit(currentState.copyWith(currentIndex: _currentIndex));
+      }
+    }
   }
 
-  @override
-  List<Object> get props => [slots, currentIndex, batchIndex, groupIndex];
+  void previousSlot() {
+    if (state is TimeTableViewLoaded) {
+      final currentState = state as TimeTableViewLoaded;
+      if (_currentIndex > 0) {
+        _currentIndex--;
+        emit(currentState.copyWith(currentIndex: _currentIndex));
+      }
+    }
+  }
+
+  void refreshTimeTable() {
+    loadTimeTable();
+  }
 }

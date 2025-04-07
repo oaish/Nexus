@@ -1,50 +1,102 @@
-// lib/presentation/cubits/timetable_manager_cubit.dart
-import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nexus/domain/entities/timetable.dart';
-import 'package:nexus/domain/repositories/timetable_repository.dart';
-
-import 'timetable_manager_state.dart';
+import 'package:nexus/presentation/cubits/timetable_manager_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class TimeTableManagerCubit extends Cubit<TimeTableManagerState> {
-  final TimeTableRepository timetableRepository;
+  final SharedPreferences _prefs;
+  static const String _timetablesKey = 'timetables';
+  static const String _currentTimetableKey = 'current_timetable';
 
-  TimeTableManagerCubit({required this.timetableRepository})
-      : super(TimeTableManagerInitial());
+  TimeTableManagerCubit(this._prefs) : super(TimeTableManagerInitial()) {
+    loadTimetables();
+  }
 
-  Future<void> loadTimeTables() async {
+  void loadTimetables() {
+    emit(TimeTableManagerLoading());
     try {
-      final timetables = await timetableRepository.getAllTimeTables();
-      emit(TimeTableManagerLoaded(timetables: timetables));
+      final timetablesJson = _prefs.getStringList(_timetablesKey) ?? [];
+      final timetables = timetablesJson
+          .map((json) => TimeTable.fromJson(jsonDecode(json)))
+          .toList();
+
+      final currentTimetableJson = _prefs.getString(_currentTimetableKey);
+      TimeTable? currentTimetable;
+      if (currentTimetableJson != null) {
+        currentTimetable = TimeTable.fromJson(jsonDecode(currentTimetableJson));
+      }
+
+      emit(TimeTableManagerLoaded(
+        timetables: timetables,
+        currentTimeTable: currentTimetable,
+      ));
     } catch (e) {
       emit(TimeTableManagerError('Failed to load timetables: $e'));
     }
   }
 
-  Future<void> saveTimeTable(TimeTable timetable) async {
+  void saveTimeTable(TimeTable timetable) {
     try {
-      await timetableRepository.saveTimeTable(timetable);
-      await loadTimeTables();
+      final currentState = state;
+      if (currentState is TimeTableManagerLoaded) {
+        final updatedTimetables = [...currentState.timetables];
+        final existingIndex =
+            updatedTimetables.indexWhere((t) => t.id == timetable.id);
+
+        if (existingIndex != -1) {
+          updatedTimetables[existingIndex] = timetable;
+        } else {
+          updatedTimetables.add(timetable);
+        }
+
+        _saveTimetablesToPrefs(updatedTimetables);
+        emit(currentState.copyWith(timetables: updatedTimetables));
+      }
     } catch (e) {
       emit(TimeTableManagerError('Failed to save timetable: $e'));
     }
   }
 
-  Future<void> deleteTimeTable(String id) async {
+  void deleteTimeTable(String id) {
     try {
-      await timetableRepository.deleteTimeTable(id);
-      await loadTimeTables();
+      final currentState = state;
+      if (currentState is TimeTableManagerLoaded) {
+        final updatedTimetables =
+            currentState.timetables.where((t) => t.id != id).toList();
+
+        if (currentState.currentTimeTable?.id == id) {
+          _prefs.remove(_currentTimetableKey);
+          emit(currentState.copyWith(
+            timetables: updatedTimetables,
+            currentTimeTable: null,
+          ));
+        } else {
+          emit(currentState.copyWith(timetables: updatedTimetables));
+        }
+
+        _saveTimetablesToPrefs(updatedTimetables);
+      }
     } catch (e) {
       emit(TimeTableManagerError('Failed to delete timetable: $e'));
     }
   }
 
   void setCurrentTimeTable(TimeTable timetable) {
-    if (state is TimeTableManagerLoaded) {
-      final current = state as TimeTableManagerLoaded;
-      emit(TimeTableManagerLoaded(
-        timetables: current.timetables,
-        currentTimeTable: timetable,
-      ));
+    try {
+      final currentState = state;
+      if (currentState is TimeTableManagerLoaded) {
+        _prefs.setString(_currentTimetableKey, jsonEncode(timetable.toJson()));
+        emit(currentState.copyWith(currentTimeTable: timetable));
+      }
+    } catch (e) {
+      emit(TimeTableManagerError('Failed to set current timetable: $e'));
     }
+  }
+
+  void _saveTimetablesToPrefs(List<TimeTable> timetables) {
+    final timetablesJson =
+        timetables.map((timetable) => jsonEncode(timetable.toJson())).toList();
+    _prefs.setStringList(_timetablesKey, timetablesJson);
   }
 }

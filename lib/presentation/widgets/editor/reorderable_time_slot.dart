@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:nexus/domain/entities/timetable_slot.dart';
-import 'package:nexus/presentation/cubits/batch_cubit.dart';
-import 'package:nexus/presentation/cubits/timetable_view_cubit.dart';
 
 class ReorderableTimeSlotTile extends StatelessWidget {
   const ReorderableTimeSlotTile({
@@ -14,7 +10,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
     required this.index,
   });
 
-  final TimeTableSlot slot;
+  final Map<String, dynamic> slot;
   final int index;
   final int batchIndex;
   final int groupIndex;
@@ -40,7 +36,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
     Widget dynamicSlot;
     Color accentColor;
 
-    switch (slot.type) {
+    switch (slot['type']) {
       case "MP":
       case "TH":
         accentColor = Colors.deepPurpleAccent;
@@ -66,40 +62,78 @@ class ReorderableTimeSlotTile extends StatelessWidget {
     }
 
     return Container(
-      margin: EdgeInsets.only(
-        top: index == 0 ? 16.0 : 8.0,
-        bottom: 8.0,
-        left: 16.0,
-        // right: 16.0,
-        right: 0,
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(color: accentColor, width: 5),
-        ),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
-        // color: Colors.grey[700]!,
-        color: const Color(0xff222222),
-        // color: const Color(0xff181818),
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
-
-        // borderRadius: BorderRadius.circular(8),
+        color: const Color(0xff1a1a1a),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white10, width: 1),
       ),
       child: Row(
-        // spacing: 2,
         children: [
-          Expanded(child: dynamicSlot),
-          SizedBox(
-            width: 20,
-            child: HugeIcon(
+          // Drag Handle
+          Container(
+            margin: const EdgeInsets.only(right: 8.0),
+            child: const HugeIcon(
               icon: HugeIcons.strokeRoundedDragDropVertical,
-              color: accentColor,
-              size: 30,
+              color: Colors.white30,
+              size: 24.0,
             ),
-          )
+          ),
+          // Slot Content
+          Expanded(child: dynamicSlot),
         ],
       ),
+    );
+  }
+
+  _subSlotColumn(BuildContext context, {bool isPractical = true}) {
+    final subSlots = slot['subSlots'] as List<dynamic>?;
+    if (subSlots == null || subSlots.isEmpty) {
+      return const SizedBox();
+    }
+
+    final Map<String, dynamic> subSlot =
+        subSlots[isPractical ? batchIndex : groupIndex];
+
+    return Column(
+      spacing: 10,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          spacing: 10,
+          children: [
+            Expanded(
+              child: _slotLabel(
+                HugeIcons.strokeRoundedLibrary,
+                isPractical
+                    ? subSlot['subject'] ?? ''
+                    : subSlot['activity'] ?? '',
+              ),
+            ),
+            _slotLabel(
+              HugeIcons.strokeRoundedTime03,
+              '${slot['sTime']} - ${slot['eTime']}',
+            ),
+          ],
+        ),
+        Row(
+          spacing: 10,
+          children: [
+            Expanded(
+              child: _slotLabel(
+                HugeIcons.strokeRoundedMortarboard02,
+                subSlot['teacher'] ?? '',
+              ),
+            ),
+            _slotLabel(
+              HugeIcons.strokeRoundedLocation01,
+              subSlot['location'] ?? '',
+            ),
+          ],
+        )
+      ],
     );
   }
 
@@ -115,13 +149,12 @@ class ReorderableTimeSlotTile extends StatelessWidget {
             Expanded(
               child: _slotLabel(
                 HugeIcons.strokeRoundedLibrary,
-                slot.subject ?? '',
-                // isTitle: true,
+                slot['subject'] ?? '',
               ),
             ),
             _slotLabel(
               HugeIcons.strokeRoundedTime03,
-              '${slot.sTime} - ${slot.eTime}',
+              '${slot['sTime']} - ${slot['eTime']}',
             ),
           ],
         ),
@@ -131,66 +164,16 @@ class ReorderableTimeSlotTile extends StatelessWidget {
             Expanded(
               child: _slotLabel(
                 HugeIcons.strokeRoundedMortarboard02,
-                slot.teacher ?? '',
+                slot['teacher'] ?? '',
               ),
             ),
-            _slotLabel(HugeIcons.strokeRoundedLocation01, slot.location),
+            _slotLabel(
+              HugeIcons.strokeRoundedLocation01,
+              slot['location'] ?? '',
+            ),
           ],
         )
       ],
-    );
-  }
-
-  _subSlotColumn(context, {isPractical = true}) {
-    return BlocBuilder<TimeTableViewCubit, TimeTableViewState>(
-      builder: (context, state) {
-        final subSlot = slot.subSlots![isPractical ? batchIndex : groupIndex];
-        return Column(
-          spacing: 10,
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              spacing: 10,
-              children: [
-                Expanded(
-                  child: _slotLabel(
-                    isPractical ? HugeIcons.strokeRoundedTestTube01 : HugeIcons.strokeRoundedActivity01,
-                    (isPractical ? subSlot.subject : subSlot.activity) ?? '',
-                    // isTitle: true,
-                  ),
-                ),
-                _slotLabel(
-                  HugeIcons.strokeRoundedTime03,
-                  '${slot.sTime} - ${slot.eTime}',
-                ),
-              ],
-            ),
-            Row(
-              spacing: 10,
-              children: [
-                Expanded(
-                  child: _slotLabel(
-                    HugeIcons.strokeRoundedMortarboard02,
-                    subSlot.teacher ?? '',
-                  ),
-                ),
-                _slotLabel(HugeIcons.strokeRoundedLocation01, subSlot.location),
-                GestureDetector(
-                  onTap: () {
-                    if (isPractical) {
-                      context.read<BatchCubit>().circleBatch();
-                    } else {
-                      context.read<BatchCubit>().circleGroup();
-                    }
-                  },
-                  child: _slotLabel(HugeIcons.strokeRoundedUserMultiple, isPractical ? subSlot.batch : subSlot.group),
-                ),
-              ],
-            )
-          ],
-        );
-      },
     );
   }
 
@@ -201,19 +184,19 @@ class ReorderableTimeSlotTile extends StatelessWidget {
         Expanded(
           child: _slotLabel(
             HugeIcons.strokeRoundedActivity01,
-            slot.activity ?? '',
-            // isTitle: true,
+            slot['activity'] ?? '',
           ),
         ),
         _slotLabel(
           HugeIcons.strokeRoundedTime03,
-          '${slot.sTime} - ${slot.eTime}',
+          '${slot['sTime']} - ${slot['eTime']}',
         ),
       ],
     );
   }
 
   _slotLabel(icon, text) {
+    final accentColor = _getAccentColor(slot['type']) ?? Colors.white30;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1.0),
       clipBehavior: Clip.antiAlias,
@@ -232,7 +215,7 @@ class ReorderableTimeSlotTile extends StatelessWidget {
             height: 24.0,
             child: HugeIcon(
               icon: icon,
-              color: _getAccentColor(slot.type)!,
+              color: accentColor,
               size: 16.0,
             ),
           ),
@@ -264,53 +247,20 @@ class EditorNoSlotTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: const Border(
-          left: BorderSide(color: Colors.blue, width: 5),
-          right: BorderSide(color: Colors.blue, width: 5),
-        ),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 3, spreadRadius: 3)],
-        color: const Color(0xff222222),
+        color: const Color(0xff1a1a1a),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white10, width: 1),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: const Color(0xff111418),
-          borderRadius: BorderRadius.circular(6),
-          boxShadow: const [BoxShadow(color: Color(0xff111418), blurRadius: 2)],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Slot Icon
-            const SizedBox(
-              width: 24.0,
-              height: 24.0,
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedAlertCircle,
-                color: Colors.blue,
-                size: 16.0,
-              ),
-            ),
-
-            // Slot Text
-            Container(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                'No slot added for $weekDay',
-                style: const TextStyle(
-                  fontFamily: 'Orbitron',
-                  color: Colors.white60,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
+      child: const Center(
+        child: Text(
+          'No slots for this day',
+          style: TextStyle(
+            color: Colors.white60,
+            fontSize: 16,
+          ),
         ),
       ),
     );

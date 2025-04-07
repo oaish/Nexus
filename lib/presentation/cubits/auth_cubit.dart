@@ -73,7 +73,9 @@ class AuthCubit extends Cubit<AuthState> {
       );
       final user = response.user;
       if (user != null) {
-        await _supabaseClient.from('profiles').insert({'id': user.id, 'username': name});
+        await _supabaseClient
+            .from('profiles')
+            .insert({'id': user.id, 'username': name});
         emit(Authenticated(user));
       }
     } catch (e) {
@@ -84,7 +86,8 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signIn(String email, String password) async {
     try {
       emit(AuthLoading());
-      final AuthResponse response = await _supabaseClient.auth.signInWithPassword(
+      final AuthResponse response =
+          await _supabaseClient.auth.signInWithPassword(
         email: email,
         password: password,
       );
@@ -118,15 +121,28 @@ class AuthCubit extends Cubit<AuthState> {
           throw 'No ID Token found.';
         }
 
-        final AuthResponse response = await _supabaseClient.auth.signInWithIdToken(
+        final AuthResponse response =
+            await _supabaseClient.auth.signInWithIdToken(
           provider: OAuthProvider.google,
           idToken: idToken,
           accessToken: accessToken,
         );
+
         final user = response.user;
         if (user != null) {
-          final displayName = user.userMetadata?['full_name'] ?? user.userMetadata?['display_name'];
-          await _supabaseClient.from('profiles').insert({'id': user.id, 'username': displayName});
+          final displayName = user.userMetadata?['full_name'] ??
+              user.userMetadata?['display_name'];
+          final existingProfile = await _supabaseClient
+              .from('profiles')
+              .select()
+              .eq('id', user.id)
+              .single();
+
+          if (existingProfile == null) {
+            await _supabaseClient
+                .from('profiles')
+                .insert({'id': user.id, 'username': displayName});
+          }
           emit(Authenticated(user));
         }
       } else {

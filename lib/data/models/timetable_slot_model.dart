@@ -1,34 +1,21 @@
-import 'package:hive/hive.dart';
-
 import '../../domain/entities/timetable_slot.dart';
 import 'sub_slot_model.dart';
 
-part 'timetable_slot_model.g.dart';
-
-@HiveType(typeId: 1)
 class TimeTableSlotModel extends TimeTableSlot {
-  @HiveField(0)
   final String sTime;
 
-  @HiveField(1)
   final String eTime;
 
-  @HiveField(2)
   final String? subject;
 
-  @HiveField(3)
   final String? teacher;
 
-  @HiveField(4)
   final String? location;
 
-  @HiveField(5)
   final String? activity;
 
-  @HiveField(6)
   final String? type;
 
-  @HiveField(7)
   final List<SubSlotModel>? subSlots;
 
   TimeTableSlotModel({
@@ -61,7 +48,9 @@ class TimeTableSlotModel extends TimeTableSlot {
       activity: json['activity'],
       type: json['type'],
       subSlots: json['subSlots'] != null
-          ? (json['subSlots'] as List).map((slot) => SubSlotModel.fromJson(slot)).toList()
+          ? (json['subSlots'] as List)
+              .map((slot) => SubSlotModel.fromJson(slot))
+              .toList()
           : null,
     );
   }

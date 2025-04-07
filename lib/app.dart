@@ -1,16 +1,10 @@
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:nexus/core/constants/app_data.dart';
 import 'package:nexus/core/constants/app_routes.dart';
-import 'package:nexus/core/utils/timetable_extensions.dart';
-import 'package:nexus/data/datasources/timetable_view_data_source.dart';
-import 'package:nexus/data/models/timetable_slot_model.dart';
-import 'package:nexus/data/repositories/timetable_view_repository_impl.dart';
-import 'package:nexus/domain/repositories/timetable_repository.dart';
 import 'package:nexus/presentation/cubits/auth_cubit.dart';
 import 'package:nexus/presentation/cubits/batch_cubit.dart';
 import 'package:nexus/presentation/cubits/timetable_editor_cubit.dart';
@@ -22,83 +16,110 @@ import 'package:nexus/presentation/pages/home_screen.dart';
 import 'package:nexus/presentation/pages/settings_screen.dart';
 import 'package:nexus/presentation/pages/silencer_screen.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyApp extends StatelessWidget {
-  final TimeTableRepository timetableRepository;
-  const MyApp({super.key, required this.timetableRepository});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final schedule = <String, List<TimeTableSlotModel>>{}.fromJson(jsonEncode(timeTable));
-    final TimeTableViewDataSource dataSource = TimeTableViewLocalDataSource(schedule: schedule);
-
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => WeekCubit()..loadCurrentDay(),
-        ),
-        BlocProvider(
-          create: (context) => TimeTableViewCubit(repository: TimeTableViewRepositoryImpl(dataSource))..loadTimeTable(),
-        ),
-        BlocProvider<TimeTableEditorCubit>(
-          create: (_) => TimeTableEditorCubit(),
-        ),
-        BlocProvider<TimeTableManagerCubit>(
-          create: (_) => TimeTableManagerCubit(timetableRepository: timetableRepository),
-        ),
-        BlocProvider<BatchCubit>(
-          create: (context) => BatchCubit(),
-        ),
-        BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(),
-        ),
-      ],
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          return ShadcnApp(
-            debugShowCheckedModeBanner: false,
-            routes: {
-              '/': AppRoutes.authWrapper,
-              '/home': AppRoutes.homePage,
-              '/silencer': AppRoutes.silencerPage,
-              '/event-detail': AppRoutes.eventDetailPage,
-              '/time-table-viewer': AppRoutes.timeTableViewerPage,
-              '/time-table-editor': AppRoutes.timeTableEditorPage,
-              '/time-table-manager': AppRoutes.timeTableManagerPage,
-            },
-            theme: ThemeData(
-              colorScheme: const ColorScheme(
-                brightness: Brightness.dark,
-                background: Color(0xff1a1a1a),
-                foreground: Color(0xfff2f2f2),
-                card: Color(0xff1c1917),
-                cardForeground: Color(0xfff2f2f2),
-                popover: Color(0xff171717),
-                popoverForeground: Color(0xfff2f2f2),
-                primary: Color(0xff7ed1d7),
-                primaryForeground: Color(0xff0f172a),
-                secondary: Color(0xff27272a),
-                secondaryForeground: Color(0xfffafafa),
-                muted: Color(0xff262626),
-                mutedForeground: Color(0xffa1a1aa),
-                accent: Color(0xff292524),
-                accentForeground: Color(0xfffafafa),
-                destructive: Color(0xff811d1d),
-                destructiveForeground: Color(0xfffef1f1),
-                border: Color(0xff27272a),
-                input: Color(0xff27272a),
-                ring: Color(0xff157f3c),
-                chart1: Color(0xff2662d9),
-                chart2: Color(0xff2eb88a),
-                chart3: Color(0xffe88c30),
-                chart4: Color(0xffaf57db),
-                chart5: Color(0xffe23670),
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const material.MaterialApp(
+            home: material.Scaffold(
+              body: material.Center(
+                child: material.CircularProgressIndicator(),
               ),
-              radius: 0.4,
             ),
           );
-        },
-      ),
+        }
+
+        if (snapshot.hasError) {
+          return material.MaterialApp(
+            home: material.Scaffold(
+              body: material.Center(
+                child: material.Text('Error: ${snapshot.error}'),
+              ),
+            ),
+          );
+        }
+
+        final prefs = snapshot.data!;
+
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => WeekCubit()..loadCurrentDay(),
+            ),
+            BlocProvider<BatchCubit>(
+              create: (context) => BatchCubit(),
+            ),
+            BlocProvider<AuthCubit>(
+              create: (context) => AuthCubit(),
+            ),
+            BlocProvider<TimeTableManagerCubit>(
+              create: (context) => TimeTableManagerCubit(prefs),
+            ),
+            BlocProvider<TimeTableViewCubit>(
+              create: (context) =>
+                  TimeTableViewCubit(context.read<TimeTableManagerCubit>()),
+            ),
+            BlocProvider<TimeTableEditorCubit>(
+              create: (context) => TimeTableEditorCubit(
+                context.read<TimeTableManagerCubit>(),
+              ),
+            ),
+          ],
+          child: BlocBuilder<AuthCubit, AuthState>(
+            builder: (context, state) {
+              return ShadcnApp(
+                debugShowCheckedModeBanner: false,
+                routes: {
+                  '/': AppRoutes.authWrapper,
+                  '/home': AppRoutes.homePage,
+                  '/silencer': AppRoutes.silencerPage,
+                  '/event-detail': AppRoutes.eventDetailPage,
+                  '/time-table-viewer': AppRoutes.timeTableViewerPage,
+                  '/time-table-editor': AppRoutes.timeTableEditorPage,
+                  '/time-table-manager': AppRoutes.timeTableManagerPage,
+                },
+                theme: ThemeData(
+                  colorScheme: const ColorScheme(
+                    brightness: Brightness.dark,
+                    background: const Color(0xff1a1a1a),
+                    foreground: const Color(0xfff2f2f2),
+                    card: const Color(0xff1c1917),
+                    cardForeground: const Color(0xfff2f2f2),
+                    popover: const Color(0xff171717),
+                    popoverForeground: const Color(0xfff2f2f2),
+                    primary: const Color(0xff7ed1d7),
+                    primaryForeground: const Color(0xff0f172a),
+                    secondary: const Color(0xff27272a),
+                    secondaryForeground: const Color(0xfffafafa),
+                    muted: const Color(0xff262626),
+                    mutedForeground: const Color(0xffa1a1aa),
+                    accent: const Color(0xff292524),
+                    accentForeground: const Color(0xfffafafa),
+                    destructive: const Color(0xff811d1d),
+                    destructiveForeground: const Color(0xfffef1f1),
+                    border: const Color(0xff27272a),
+                    input: const Color(0xff27272a),
+                    ring: const Color(0xff157f3c),
+                    chart1: const Color(0xff2662d9),
+                    chart2: const Color(0xff2eb88a),
+                    chart3: const Color(0xffe88c30),
+                    chart4: const Color(0xffaf57db),
+                    chart5: const Color(0xffe23670),
+                  ),
+                  radius: 0.4,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -130,7 +151,7 @@ class _HomePageState extends State<HomePage> {
           CurvedNavigationBar(
             height: 60,
             color: colorScheme.primary,
-            backgroundColor: colorScheme.background,
+            backgroundColor: Colors.transparent,
             animationDuration: const Duration(milliseconds: 400),
             onTap: (int selectedIndex) {
               setState(() {
