@@ -135,14 +135,14 @@ class ActionHubScreen extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
-                      // Notes Action
-                      ActionButton(
-                        color: const Color(0xFFD84FA1),
-                        title: 'Notes',
-                        subtitle: 'Create and view your notes',
-                        icon: HugeIcons.strokeRoundedTaskEdit02,
-                        onTap: () {},
-                      ),
+                      // // Notes Action
+                      // ActionButton(
+                      //   color: const Color(0xFFD84FA1),
+                      //   title: 'Notes',
+                      //   subtitle: 'Create and view your notes',
+                      //   icon: HugeIcons.strokeRoundedTaskEdit02,
+                      //   onTap: () {},
+                      // ),
                     ],
                   ),
                 ),
