@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:nexus/core/constants/app_data.dart';
 import 'package:nexus/core/widgets/event_card.dart';
+import 'package:nexus/presentation/screens/events_screen.dart';
+import 'package:nexus/presentation/screens/links_screen.dart';
+import 'package:nexus/presentation/pages/pc_share.dart';
 
 class ActionHubScreen extends StatelessWidget {
   const ActionHubScreen({super.key});
@@ -65,13 +68,20 @@ class ActionHubScreen extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
-                      // Tasks Action
+                      // PC Share Action
                       ActionButton(
                         color: const Color(0xFF4E7CFF),
                         title: 'PC Share',
                         subtitle: 'Share files with your PC',
                         icon: HugeIcons.strokeRoundedComputerPhoneSync,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const QRScannerScreen(),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 16),
@@ -82,7 +92,14 @@ class ActionHubScreen extends StatelessWidget {
                         title: 'Saved Links',
                         subtitle: 'Access your resources',
                         icon: HugeIcons.strokeRoundedLink02,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LinksScreen(),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 16),
@@ -106,7 +123,14 @@ class ActionHubScreen extends StatelessWidget {
                         title: 'Events',
                         subtitle: 'Manage your upcoming events',
                         icon: HugeIcons.strokeRoundedCalendar03,
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EventsScreen(),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 16),

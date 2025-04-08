@@ -554,14 +554,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.3"
-  hive_flutter:
-    dependency: "direct main"
-    description:
-      name: hive_flutter
-      sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   hive_generator:
     dependency: "direct dev"
     description:
@@ -954,14 +946,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.0"
-  pdf_render:
-    dependency: "direct main"
-    description:
-      name: pdf_render
-      sha256: "0fdf8da394cc444b870ce43cebd0f66a7c1564ec45009861ee884058f31eba28"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.4.7"
   permission_handler:
     dependency: "direct main"
     description:
@@ -1082,6 +1066,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
+  qr_code_scanner_plus:
+    dependency: "direct main"
+    description:
+      name: qr_code_scanner_plus
+      sha256: "39696b50d277097ee4d90d4292de36f38c66213a4f5216a06b2bdd2b63117859"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.10+1"
   realtime_client:
     dependency: transitive
     description:
@@ -1512,7 +1504,7 @@ packages:
     source: hosted
     version: "1.4.0"
   url_launcher:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: url_launcher
       sha256: "9d06212b1362abc2f0f0d78e6f09f726608c74e3b9462e8368bb03314aa8d603"
@@ -1648,7 +1640,7 @@ packages:
     source: hosted
     version: "0.1.6"
   web_socket_channel:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: web_socket_channel
       sha256: "0b8e2457400d8a859b7b2030786835a28a8e80836ef64402abef392ff4f1d0e5"

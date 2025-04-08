@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path/path.dart' as path;
 import '../../core/widgets/nexus_back_button.dart';
+import '../../core/utils/toast_helper.dart';
 import '../../domain/models/document.dart';
 import '../../domain/repositories/document_repository.dart';
 import '../../data/repositories/document_repository_impl.dart';
@@ -52,9 +53,8 @@ class _DocumentScreenState extends State<DocumentScreen> {
         _isInitialized = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error initializing repository: $e')),
-        );
+        ToastHelper.showErrorToast(
+            context, 'Error initializing repository: $e');
       }
     }
   }
@@ -74,18 +74,14 @@ class _DocumentScreenState extends State<DocumentScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading documents: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error loading documents: $e');
       }
     }
   }
 
   Future<void> _pickAndAddDocument() async {
     if (!_isInitialized) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Repository not initialized')),
-      );
+      ToastHelper.showErrorToast(context, 'Repository not initialized');
       return;
     }
 
@@ -98,9 +94,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding document: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error adding document: $e');
       }
     }
   }
@@ -133,9 +127,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
       final documentExists = _documents.any((doc) => doc.id == document.id);
       if (!documentExists) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Document no longer exists')),
-          );
+          ToastHelper.showErrorToast(context, 'Document no longer exists');
         }
         return;
       }
@@ -154,15 +146,11 @@ class _DocumentScreenState extends State<DocumentScreen> {
       await _loadDocuments();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Document deleted successfully')),
-        );
+        ToastHelper.showSuccessToast(context, 'Document deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting document: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error deleting document: $e');
       }
     }
   }
@@ -174,9 +162,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
       await widget.documentRepository.openDocument(document.filePath);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error opening document: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error opening document: $e');
       }
     }
   }
@@ -186,9 +172,7 @@ class _DocumentScreenState extends State<DocumentScreen> {
       await Share.shareXFiles([XFile(document.filePath)], text: document.name);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error sharing document: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error sharing document: $e');
       }
     }
   }
@@ -243,15 +227,12 @@ class _DocumentScreenState extends State<DocumentScreen> {
         }
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Documents backed up successfully')),
-        );
+        ToastHelper.showSuccessToast(
+            context, 'Documents backed up successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error backing up documents: $e\n')),
-        );
+        ToastHelper.showErrorToast(context, 'Error backing up documents: $e\n');
         print('Error backing up documents: $e');
       }
     } finally {
@@ -278,15 +259,12 @@ class _DocumentScreenState extends State<DocumentScreen> {
       await _loadDocuments();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Document downloaded successfully')),
-        );
+        ToastHelper.showSuccessToast(
+            context, 'Document downloaded successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error downloading document: $e')),
-        );
+        ToastHelper.showErrorToast(context, 'Error downloading document: $e');
       }
     }
   }
